@@ -5,9 +5,9 @@ import styles from './Footer.module.css'
 import { Logo } from '@/components/Logo'
 
 const footerNav = {
-  'Getting started': {
+  'Quick Start': {
     className: 'row-span-2',
-    items: documentationNav['Getting started'],
+    items: documentationNav['Quick Start'],
   },
   'Core concepts': {
     className: 'row-span-2',
@@ -36,14 +36,14 @@ export function Footer() {
         >
           {Object.keys(footerNav).map((section, i) => (
             <li key={section} className={clsx('space-y-5', footerNav[section].className)}>
-              <h2 className="text-xs font-semibold tracking-wide text-gray-900 uppercase">
+              <h2 className="text-xs font-semibold tracking-wide text-tensei-dark uppercase">
                 {section}
               </h2>
               <ul className="space-y-4">
-                {footerNav[section].items.map((item) => (
+                {footerNav[section].items?.map((item) => (
                   <li key={item.href}>
                     <Link href={item.href}>
-                      <a className="hover:text-gray-900 transition-colors duration-200">
+                      <a className="hover:text-tensei-gray-darker transition-colors duration-200">
                         {item.title}
                       </a>
                     </Link>

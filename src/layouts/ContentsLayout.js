@@ -28,10 +28,10 @@ function TableOfContents({ tableOfContents, currentSection }) {
 
   return (
     <>
-      <h5 className="text-gray-900 uppercase tracking-wide font-semibold mb-3 text-sm lg:text-xs">
+      <h5 className="text-tensei-dark uppercase tracking-wide font-semibold mb-3 text-sm lg:text-xs">
         On this page
       </h5>
-      <ul className="overflow-x-hidden text-gray-500 font-medium">
+      <ul className="overflow-x-hidden text-tensei-gray-darker font-medium">
         {tableOfContents.map((section) => {
           let sectionIsActive =
             currentSection === section.slug ||
@@ -44,9 +44,9 @@ function TableOfContents({ tableOfContents, currentSection }) {
                   href={`#${section.slug}`}
                   onClick={closeNav}
                   className={clsx(
-                    'block transform transition-colors duration-200 py-2 hover:text-gray-900',
+                    'block transform transition-colors duration-200 py-2 hover:text-tensei-gray-darker',
                     {
-                      'text-gray-900': sectionIsActive,
+                      'text-tensei-dark': sectionIsActive,
                     }
                   )}
                 >
@@ -68,9 +68,9 @@ function TableOfContents({ tableOfContents, currentSection }) {
                       href={`#${subsection.slug}`}
                       onClick={closeNav}
                       className={clsx(
-                        'block py-2 transition-colors duration-200 hover:text-gray-900 font-medium',
+                        'block py-2 transition-colors duration-200 hover:text-tensei-dark font-medium',
                         {
-                          'text-gray-900': subsectionIsActive,
+                          'text-tensei-dark': subsectionIsActive,
                         }
                       )}
                     >

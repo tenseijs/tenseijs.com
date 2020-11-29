@@ -17,18 +17,6 @@ export function VersionSwitcher({ className }) {
 
   return (
     <form onSubmit={submit} className={clsx('relative', className)}>
-      <label>
-        <span className="sr-only">Tailwind CSS Version</span>
-        <select
-          ref={selectRef}
-          className="appearance-none block bg-transparent pr-7 py-1 text-gray-500 font-medium text-sm focus:outline-none focus:text-gray-900 transition-colors duration-200"
-          onChange={submit}
-        >
-          <option value="v2">v{tailwindVersion}</option>
-          <option value="v1">v1.9.6</option>
-          <option value="v0">v0.7.4</option>
-        </select>
-      </label>
       <svg
         className="w-5 h-5 text-gray-400 absolute top-1/2 right-0 -mt-2.5 pointer-events-none"
         fill="currentColor"

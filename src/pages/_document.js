@@ -20,7 +20,7 @@ export default class Document extends NextDocument {
         <body>
           <Main />
           <NextScript />
-          <script>{' '}</script>
+          <script> </script>
         </body>
       </Html>
     )

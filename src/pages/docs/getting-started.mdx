@@ -1,0 +1,74 @@
+---
+title: Getting started
+description: Learn how to start a fresh project with Tensei.
+---
+
+import { Heading } from '@/components/Heading'
+import { List, ListItemGood } from '@/components/List'
+import Link from 'next/link'
+
+<!-- Welcome to Tensei JS! This quick start guide will get you up and running in just a few seconds. Let's build a simple  -->
+## What is Tensei?
+Tensei is an elegant, open-source headless CMS that makes it very fast and easy to build powerful and secure APIs.
+Out of the box, you can setup a fully customisable GraphQL or Rest API with `email/password` and `social` authentication, JWT, access and refresh tokens, Role Based Access Control (`RBAC`) and a beautiful, fully customisable headless CMS dashboard to manage your content seamlessly.
+
+Tensei supports `Mysql`, `MongoDB`, `Sqlite` and `Postgresql` out of the box. Database communication is implemented using the amazing [Mikro ORM](https://mikro-orm.io/), a fast and secure ORM for Node.js.
+
+## Requirements
+Before we setup your first project, make sure you have a basic development environment setup, with the following tools installed on your system:
+
+<List>
+  <ListItemGood><a href='https://nodejs.org'>Node.js</a> >= v12, preferrably an LTS version</ListItemGood>
+  <ListItemGood>
+    <a href='https://yarnpkg.com'>Yarn</a> or <a href='https://npmjs.com'>npm</a> package manager
+  </ListItemGood>
+</List>
+
+## Setup a new Tensei project
+You can generate a project using a single command:
+
+```shell
+yarn create tensei-app ecommerce-app
+
+# Or using npm
+npx create-tensei-app ecommerce-app
+```
+
+This will generate a new project in a folder called `ecommerce-app` with GraphQL and authentication already setup for you.
+
+Tensei requires very little code to run, so you'll see only three files in the generated project: `.gitignore`, `package.json` and `index.js` file.
+
+The `index.js` file contains your server, and the content should look like this:
+
+```javascript
+const { auth } = require('@tensei/auth')
+const { tensei } = require('@tensei/core')
+const { graphql } = require('@tensei/graphql')
+
+tensei()
+    .plugins([
+        auth()
+            .plugin(),
+        graphql()
+            .plugin()
+    ])
+    .databaseConfig({
+        type: 'sqlite',
+        dbName: 'ecommerce_app.sqlite',
+    })
+    .start()
+```
+
+This file creates a new `tensei()` instance, registers the `auth()` and `graphql()` plugins, configures `sqlite` as the database, and `starts()` the server.
+
+Run the server with `yarn dev`. You should see the following message:
+
+```shell
+✔  success   🚀 Access your server on http://127.0.0.1:4500
+```
+
+You can now access your `GraphQL` API on [http://127.0.0.1:4500/graphql](http://127.0.0.1:4500/graphql)
+
+Please take a comment to try out the mutations and queries specified in the GraphQL explorer, or if you're using Rest, make API calls with a Rest client such as [Postman](https://postman.com) or [Insomnia](https://insomnia.rest/).
+
+Congratulations, you've successfully run your first Tensei app 🎉.

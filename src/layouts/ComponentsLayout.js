@@ -1,6 +1,5 @@
 import { SidebarLayout } from '@/layouts/SidebarLayout'
 import Head from 'next/head'
-import twitterSquare from '@/img/twitter-square.jpg'
 import { createPageList } from '@/utils/createPageList'
 
 const pages = createPageList(
@@ -27,7 +26,7 @@ export function ComponentsLayout(props) {
         <meta
           key="twitter:image"
           name="twitter:image"
-          content={`https://tailwindcss.com${twitterSquare}`}
+          content={`https://res.cloudinary.com/bahdcoder/image/upload/v1606683959/twitter-card.png`}
         />
       </Head>
       <SidebarLayout nav={nav} {...props} />

@@ -14,13 +14,13 @@ const NavItem = forwardRef(({ href, children, isActive, isPublished, fallbackHre
       <Link href={isPublished ? href : fallbackHref}>
         <a
           className={clsx('px-3 py-2 transition-colors duration-200 relative block', {
-            'text-cyan-700': isActive,
-            'hover:text-gray-900 text-gray-500': !isActive && isPublished,
+            'text-tensei-purple': isActive,
+            'hover:text-tensei-dark text-tensei-gray-darker': !isActive && isPublished,
             'text-gray-400': !isActive && !isPublished,
           })}
         >
           <span
-            className={clsx('rounded-md absolute inset-0 bg-cyan-50', {
+            className={clsx('rounded-md absolute inset-0 bg-tensei-light', {
               'opacity-50': isActive,
               'opacity-0': !isActive,
             })}
@@ -69,8 +69,8 @@ function Nav({ nav, children, fallbackHref }) {
                     className={clsx(
                       'px-3 mb-3 lg:mb-3 uppercase tracking-wide font-semibold text-sm lg:text-xs',
                       {
-                        'text-gray-900': publishedItems.length > 0,
-                        'text-gray-400': publishedItems.length === 0,
+                        'text-tensei-dark': publishedItems.length > 0,
+                        'text-tensei-gray-darker': publishedItems.length === 0,
                       }
                     )}
                   >
@@ -108,10 +108,10 @@ const TopLevelAnchor = forwardRef(
           href={href}
           onClick={onClick}
           className={clsx(
-            'flex items-center px-3 hover:text-gray-900 transition-colors duration-200',
+            'flex items-center px-3 hover:text-tensei-dark transition-colors duration-200',
             className,
             {
-              'text-gray-900': isActive,
+              'text-tensei-dark': isActive,
             }
           )}
         >
@@ -143,126 +143,7 @@ function TopLevelNav() {
   let { pathname } = useRouter()
   let current = pathname.split('/')[1]
 
-  return (
-    <>
-      <TopLevelLink
-        href="/docs"
-        isActive={current === '' || current === 'docs'}
-        color="pink"
-        className="mb-4"
-        icon={
-          <>
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M9 6C10.0929 6 11.1175 6.29218 12 6.80269V16.8027C11.1175 16.2922 10.0929 16 9 16C7.90714 16 6.88252 16.2922 6 16.8027V6.80269C6.88252 6.29218 7.90714 6 9 6Z"
-              fill="#FFF1F2"
-            />
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M15 6C16.0929 6 17.1175 6.29218 18 6.80269V16.8027C17.1175 16.2922 16.0929 16 15 16C13.9071 16 12.8825 16.2922 12 16.8027V6.80269C12.8825 6.29218 13.9071 6 15 6Z"
-              fill="#FECDD3"
-            />
-          </>
-        }
-      >
-        Documentation
-      </TopLevelLink>
-      <TopLevelLink
-        href="https://tailwindui.com/components?utm_source=tailwindcss&utm_medium=navigation"
-        color="violet"
-        className="mb-4"
-        icon={
-          <>
-            <path d="M6 9l6-3 6 3v6l-6 3-6-3V9z" fill="#F5F3FF" />
-            <path d="M6 9l6 3v6l-6-3V9z" fill="#DDD6FE" />
-            <path d="M18 9l-6 3v6l6-3V9z" fill="#C4B5FD" />
-          </>
-        }
-      >
-        Components
-      </TopLevelLink>
-      <TopLevelLink
-        href="https://play.tailwindcss.com"
-        color="amber"
-        className="mb-4"
-        icon={
-          <>
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M13.196 6.02a1 1 0 01.785 1.176l-2 10a1 1 0 01-1.961-.392l2-10a1 1 0 011.176-.784z"
-              fill="#FDE68A"
-            />
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M15.293 9.293a1 1 0 011.414 0l2 2a1 1 0 010 1.414l-2 2a1 1 0 01-1.414-1.414L16.586 12l-1.293-1.293a1 1 0 010-1.414zM8.707 9.293a1 1 0 010 1.414L7.414 12l1.293 1.293a1 1 0 11-1.414 1.414l-2-2a1 1 0 010-1.414l2-2a1 1 0 011.414 0z"
-              fill="#FDF4FF"
-            />
-          </>
-        }
-      >
-        Playground
-      </TopLevelLink>
-      <TopLevelLink
-        href="https://blog.tailwindcss.com"
-        color="teal"
-        className="mb-4"
-        icon={
-          <>
-            <path
-              d="M8 9a1 1 0 011-1h8a1 1 0 011 1v7.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 018 16.5V9z"
-              fill="#6EE7B7"
-            />
-            <path
-              d="M15 7a1 1 0 00-1-1H7a1 1 0 00-1 1v9.5A1.5 1.5 0 007.5 18H16v-.085a1.5 1.5 0 01-1-1.415V7z"
-              fill="#ECFDF5"
-            />
-            <path fill="#A7F3D0" d="M8 8h5v4H8zM8 14h5v2H8z" />
-          </>
-        }
-      >
-        News
-      </TopLevelLink>
-      <TopLevelLink
-        href="/resources"
-        isActive={current === 'resources'}
-        color="blue"
-        className="mb-4"
-        icon={
-          <>
-            <path d="M17 13a1 1 0 011 1v3a1 1 0 01-1 1H8.5a2.5 2.5 0 010-5H17z" fill="#93C5FD" />
-            <path
-              d="M12.743 7.722a1 1 0 011.414 0l2.122 2.121a1 1 0 010 1.414l-6.01 6.01a2.5 2.5 0 11-3.536-3.536l6.01-6.01z"
-              fill="#BFDBFE"
-            />
-            <path d="M6 7a1 1 0 011-1h3a1 1 0 011 1v8.5a2.5 2.5 0 01-5 0V7z" fill="#EFF6FF" />
-            <path d="M9.5 15.5a1 1 0 11-2 0 1 1 0 012 0z" fill="#60A5FA" />
-          </>
-        }
-      >
-        Resources
-      </TopLevelLink>
-      <TopLevelLink
-        href="https://www.youtube.com/tailwindlabs"
-        color="purple"
-        className="mb-10"
-        icon={
-          <>
-            <circle cx="12" cy="12" r="7" fill="#F3E8FF" />
-            <path
-              d="M14.52 11.136a1 1 0 010 1.728l-3.016 1.759A1 1 0 0110 13.759v-3.518a1 1 0 011.504-.864l3.015 1.76z"
-              fill="#C084FC"
-            />
-          </>
-        }
-      >
-        Screencasts
-      </TopLevelLink>
-    </>
-  )
+  return null
 }
 
 export function SidebarLayout({ children, navIsOpen, setNavIsOpen, nav, sidebar, fallbackHref }) {

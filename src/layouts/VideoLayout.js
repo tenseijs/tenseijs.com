@@ -27,22 +27,28 @@ export function VideoLayout({ children, meta }) {
           <div>
             <a
               href={meta.downloadHd}
-              className="hidden sm:inline text-gray-600 hover:text-gray-900"
+              className="hidden sm:inline hover:text-tensei-dark text-tensei-gray-darker"
             >
               <span>Download HD</span>
             </a>{' '}
-            <a href={meta.downloadSd} className="sm:ml-6 text-gray-600 hover:text-gray-900">
+            <a
+              href={meta.downloadSd}
+              className="sm:ml-6 hover:text-tensei-dark text-tensei-gray-darker"
+            >
               <span>
                 Download<span className="sm:hidden"> video</span>
                 <span className="hidden sm:inline"> SD</span>
               </span>
             </a>{' '}
-            <a href={meta.sourceCode} className="ml-6 text-gray-600 hover:text-gray-900">
+            <a
+              href={meta.sourceCode}
+              className="ml-6 hover:text-tensei-dark text-tensei-gray-darker"
+            >
               <span>Source code</span>
             </a>
           </div>
           <Link href={next && next.published !== false ? next.href : '/course/coming-soon'}>
-            <a className="inline-flex items-center text-gray-600 hover:text-gray-900">
+            <a className="inline-flex items-center hover:text-tensei-dark text-tensei-gray-darker">
               <span>
                 Next<span className="hidden sm:inline"> lesson</span>
               </span>

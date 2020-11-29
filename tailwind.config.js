@@ -44,8 +44,17 @@ module.exports = {
         tag: '#D58FFF',
         'attr-name': '#4BD0FB',
         'attr-value': '#A2F679',
-        string: '#A2F679',
+        string: colors.tensei,
         highlight: 'rgba(134, 239, 172, 0.25)',
+      },
+      tensei: {
+        purple: '#2346F8',
+        gray: '#EAEBEF',
+        'gray-darker': '#61677C',
+        dark: '#21185A',
+        lighter: '#F6F8FF',
+        light: '#EFF1FE',
+        danger: '#D41B44',
       },
     },
     extend: {
@@ -53,7 +62,7 @@ module.exports = {
         DEFAULT: {
           css: {
             maxWidth: 'none',
-            color: theme('colors.gray.500'),
+            color: theme('colors.tensei.gray-darker'),
             '> :first-child': { marginTop: '-' },
             '> :last-child': { marginBottom: '-' },
             '&:first-child > :first-child': {
@@ -64,9 +73,11 @@ module.exports = {
             },
             'h1, h2': {
               letterSpacing: '-0.025em',
+              color: theme('colors.tensei.dark'),
             },
             'h2, h3': {
               'scroll-margin-block': `${(70 + 40) / 16}rem`,
+              color: theme('colors.tensei.dark'),
             },
             'ul > li': {
               paddingLeft: '1.5em',
@@ -80,7 +91,7 @@ module.exports = {
               backgroundColor: theme('colors.gray.300'),
             },
             a: {
-              color: theme('colors.cyan.700'),
+              color: theme('colors.tensei.danger'),
               fontWeight: theme('fontWeight.medium'),
               textDecoration: 'none',
               boxShadow: theme('boxShadow.link'),
@@ -99,7 +110,7 @@ module.exports = {
             },
             code: {
               fontWeight: '400',
-              color: theme('colors.violet.600'),
+              color: theme('colors.tensei.purple'),
             },
             'code::before': {
               // content: 'none',
@@ -108,7 +119,7 @@ module.exports = {
               // content: 'none',
             },
             pre: {
-              backgroundColor: '-',
+              backgroundColor: theme('colors.tensei.dark'),
               color: theme('colors.white'),
               borderRadius: 0,
               marginTop: 0,
@@ -165,7 +176,7 @@ module.exports = {
       }),
       boxShadow: {
         px: '0 0 0 1px rgba(0, 0, 0, 0.5)',
-        link: 'inset 0 -0.125em 0 0 #fff, inset 0 -0.375em 0 0 rgba(165, 243, 252, 0.4)',
+        link: 'inset 0 -0.125em 0 0 #fff, inset 0 -0.375em 0 0 rgba(212, 27, 68, 0.1)',
       },
       keyframes: {
         'flash-code': {
