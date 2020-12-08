@@ -1,0 +1,102 @@
+---
+title: Resources
+description: A deep dive into Tensei resources, the backbone of every tensei application.
+---
+
+## What is a resource?
+
+A resource in Tensei represents the principal way to interact with your database, API and CMS dashboard. It will always correspond to a single database table or collection in your application.
+
+For each resource, Tensei will generate smart and customisable `CRUD` functionality a REST or GraphQL API. Resources can also be managed from the Tensei CMS dashbaord.
+
+## Defining Resources
+
+To define a resource, use the `resource` function. The first argument is the name of the resource. It returns a resource highly customisable resource instance.
+
+```js
+const { resource } = require('@tensei/core')
+
+const Post = resource('Post')
+```
+
+Each resource maps to a database table or collection. By default, the `Post` resource would connect to a database table called `posts`, which matches the plural, lowercase of the resource name. The `Tag` resource would connect to the `tags` table, and the `Customer Expense` resource would connect to the `customer_expenses` table.
+
+## Registering Resources
+
+The `resources` method on the Tensei instance can be used to register all resources of the application. It takes in an array resource instances.
+
+```js
+const { tensei, resource } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Tag'),
+        resource('Post'),
+        resource('Author'),
+        resource('Comment'),
+    ])
+```
+
+## Defining resource fields
+The `.fields()` method can be used to define resource fields. Each field corresponds to a table column, and will show up on the CMS dashboard. All possible fields such as `number()`, `text()`, `textarea()` etc. are exported from the `@tensei/core` package.
+This is how you will define fields for a `Tag` in your application.
+
+```js
+const { tensei, resource, boolean, text, textarea } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Tag')
+            .fields([
+                text('Name'),
+                boolean('Active'),
+                textarea('Description')
+            ])
+    ])
+    .db(...)
+    .start()
+```
+
+For more information about defining and cutomising fields, see the [fields documentation](/docs/fields).
+
+## Resource Groups
+By default, all resources show up on the dashboard sidebar in a `Resources` group. 
+If you would like to separate resources into different sidebar groups on the dashboard, you may call the `group` method on the resource instance.
+
+```js
+const { tensei, resource } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Post').group('Blog & Writing'),
+        resource('Author').group('Blog & Writing'),
+    ])
+```
+
+Now the `Post` and `Author` resources would be in the same group. This is a great way to separate concerns on your dashboard.
+
+## Pagination
+If you'd like to customize the data shown on each resource's "per page" filter menu, you can do so by calling the `.perPageOptions()` method on the resource:
+
+```javascript
+resource('Post')
+    .perPageOptions([25, 50, 100, 250, 500])
+```
+
+The number of rows fetched on the resource page would default to the first `perPageOption` defined.
+
+## Hiding resources
+If you don't want a resource to appear in the sidebar, you may call the `.hideFromNavigation()` method on your resource instance:
+
+```javascript
+resource('Post')
+    .hideFromNavigation()
+```
+
+## Disabling timestamps
+By default, all registered resources have 3 fields: `ID()`, `timestamp('Created At')` and `timestamp('Updated At')`. To disable the timestamps registered by default, you may call the `.noTimestamps()` method.
+
+```javascript
+resource('Product')
+    .noTimeStamps()
+```

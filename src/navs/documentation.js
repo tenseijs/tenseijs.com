@@ -6,5 +6,12 @@ const pages = createPageList(
 )
 
 export const documentationNav = {
-  'Quick Start': [pages['getting-started']],
+  'Quick Start': [
+    pages['getting-started'],
+    pages['database-setup']
+  ],
+  'Core Concepts': [
+    pages['resources'],
+    pages['fields'],
+  ]
 }

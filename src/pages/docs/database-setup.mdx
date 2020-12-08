@@ -1,0 +1,38 @@
+---
+title: Database Setup
+description: How to setup a database for your Tensei app
+---
+
+## Installing a database connector
+
+Tensei uses the amazing [MikroORM](https://mikro-orm.io/) ORM behind the scenes to establish database connections. It supports [MySQL](https://www.mysql.com/), [PostgresQL](https://www.postgresql.org/), [Sqlite](https://www.sqlite.org/) and [MongoDB](https://www.mongodb.com/). Once you choose the database for your project, you need to install one of the following database drivers:
+
+```shell
+yarn add @mikro-orm/mysql # for mysql
+yarn add @mikro-orm/postgresql # for postgresql
+yarn add @mikro-orm/sqlite # for sqlite
+yarn add @mikro-orm/mongodb # for mongodb
+
+# Or using npm
+npm i -s @mikro-orm/mysql # for mysql
+npm i -s @mikro-orm/postgresql # for postgresql
+npm i -s @mikro-orm/sqlite # for sqlite
+npm i -s @mikro-orm/mongodb # for mongodb
+```
+
+Next, call the `.db()` method on the tensei instance to configure your database:
+
+```javascript
+tensei()
+    .db({
+        type: 'mysql', // or postgresql / sqlite / mongodb
+        dbName: 'tensei',
+        user: 'root',
+        password: ''
+    })
+```
+
+Make sure you call the `.db()` method before calling the `.start()` method. When you call `.start()`, Tensei establishes a database connection to your configured database. 
+
+You can learn more about your database options and configuration directly from the [Mikro ORM documentation](https://mikro-orm.io/docs/configuration/)
+
