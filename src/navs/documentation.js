@@ -5,13 +5,14 @@ const pages = createPageList(
   'docs'
 )
 
+console.log(pages)
+
 export const documentationNav = {
-  'Quick Start': [
-    pages['getting-started'],
-    pages['database-setup']
-  ],
+  'Quick Start': [pages['getting-started'], pages['database-setup']],
   'Core Concepts': [
     pages['resources'],
     pages['fields'],
-  ]
+    pages['relationships'],
+    pages['validation'],
+  ],
 }

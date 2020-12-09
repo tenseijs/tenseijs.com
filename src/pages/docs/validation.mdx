@@ -1,0 +1,111 @@
+---
+title: Validation
+description: How to ensure database integrity, clean, correct and useful data in Tensei applications.
+---
+
+Data validation is an integral part of any serious application. Tensei provides an easy-to-use way to make sure data passed to the API, or saved from the CMS is valid, sanitized and clean.
+
+You may define validation rules on each resource field. Validation and sanitization is implemented using the [indicative](https://indicative.adonisjs.com/guides/master/introduction) library.
+
+## Attaching rules
+
+When defining a field on a resource, you may use the `rules()` method to attach [indicative validation rules](https://indicative.adonisjs.com/validations/master/array) to the field:
+
+```js
+const { resource, text } = require('@tensei/core')
+
+resource('User')
+    .fields([
+        text('Email')
+            .rules('required', 'email')
+    ])
+```
+
+These rules would be used to validate the field when creating and updating via the CMS and API.
+
+## Creation Rules
+
+If you would like to define rules that only apply when a resource is being created, you may use the `.creationRules()` method:
+
+```js
+const { resource, text } = require('@tensei/core')
+
+resource('User')
+    .fields([
+        text('Email')
+            .creationRules('required', 'email')
+    ])
+```
+
+## Update Rules
+
+If you would like to define rules that only apply when a resource is being created, you may use the `.updateRules()` method.
+```js
+const { resource, text } = require('@tensei/core')
+
+resource('User')
+    .fields([
+        text('Email')
+            .searchable()
+            .sortable()
+            .rules('max:255', 'email')
+            .creationRules('required', 'unique:email')
+            .updateRules('email')
+    ])
+```
+
+## Custom validation rules
+
+To define custom validation rules, you may use a Tensie plugin. A Tensei plugin gives you access to the [indicative](https://indicative.adonisjs.com/guides/master/introduction) library instance. Here's an example defining a `slug` validation rule:
+
+```js
+const { tensei, plugin } = require('@tensei/core')
+
+tensei()
+    .plugins([
+        plugin('Custom slug validation rule')
+            .register(({ indicative }) => {
+                indicative.validator.extend('slug', {
+                    async: false,
+                    validate: (data, field) => data.original[field].match(
+                        /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+                    ),
+                })
+            })
+    ])
+```
+
+For more information about defining custom validation rules, please see the [indicative documentation](https://indicative.adonisjs.com/guides/master/extend) about this. 
+
+## Custom validation messages
+
+Sometimes the default validation error messages do not match your application's needs. For example, when validation fails for the `email` validation rule, the default validation message is `email validation failed on email`.
+
+You may define custom validation messages on a resource using the `.validationMessages()` method.
+
+```js
+resource('User')
+    .fields([
+        text('Email')
+            .rules('required', 'email')
+    ])
+    .validationMessages({
+        email: 'The email you provided was invalid.',
+        required: 'The {{ field }} is required to create a user.'
+    })
+```
+
+You can learn more about custom validation messages from the [indicative documentation](https://indicative.adonisjs.com/guides/master/custom-messages).
+
+## Sanitization rules
+
+Cleaning up data sent to your server is a great way to ensure data integrity. You may define a sanitization rule on a field using the `.sanitize()` method:
+
+```js
+resource('Post')
+    .fields([
+        text('Title')
+            .rules('required', 'max:255')
+            .sanitize('escape', 'lower_case')
+    ])
+```

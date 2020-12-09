@@ -1,0 +1,125 @@
+---
+title: Relationships
+description: Relating resources in Tensei using relationship fields.
+---
+
+Tensei supports all the major relationships needed for any web application, and ships with fields to make implementing these relationships fast and easy.
+
+- [Has One Field](#has-one-field)
+- [Has Many Field](#has-many-field)
+- [Belongs To Field](#belongs-to-field)
+- [Belongs To Many Field](#belongs-to-many-field)
+
+## Has One Field
+
+This field provides a way for one resource to be linked to another resource via a one-to-one relationship. For example, a customer in your application might have one address. This means you'll have a `Customer` resource and an `Address` resource, and link them with this relationship like this:
+
+```javascript
+const { tensei, resource, hasOne, integer, text } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Customer')
+            .fields([
+                text('Email'),
+                hasOne('Address')
+            ]),
+        resource('Address')
+            .fields([
+                integer('Zip Code'),
+                text('Street Name')
+            ])
+    ])
+```
+
+## Has Many Field
+
+This field provides a way for one resource to be linked to another via a one-to-many relationship. For example, in a library application, an author may have many books. This means you'll have an `Author` resource and a `Book` resource, and link them with this relationship like this:
+
+```javascript
+const { tensei, resource, hasMany, integer, text, belongsTo } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Author')
+            .fields([
+                text('Full Name'),
+                hasMany('Book')
+            ]),
+        resource('Book')
+            .fields([
+                text('Title'),
+                text('ISBN').unique(),
+                belongsTo('Author')
+            ])
+    ])
+```
+
+Do not forget to define the reverse `belongsTo()` relationship on the related resource, in this case the `Book` resource.
+
+## Belongs To Field
+
+This field provides a way for one resource to be linked to another via a many-to-one relationship. For example, in a library application, a book may belong to one author. This means you'll have a `Book` resource and an `Author` resource, and link them with this relationship like this:
+
+```javascript
+const { tensei, resource, hasMany, integer, text, belongsTo } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Book')
+            .fields([
+                text('Title'),
+                text('ISBN').unique(),
+                belongsTo('Author')
+            ]),
+        resource('Author')
+            .fields([
+                text('Full Name'),
+                hasMany('Book')
+            ]),
+    ])
+```
+
+Do not forget to define the reverse `hasMany()` relationship on the related resource, in this case the `Author` resource.
+
+## Belongs To Many Field
+
+This field provides a way for one resource to be linked to another via a many-to-many relationship. For example, in a blogging application, a tag may belong to many posts. This means you'll have a `Tag` resource and a `Post` resource, and link them with this relationship like this:
+
+```javascript
+const { tensei, resource, hasMany, integer, text, textarea, belongsToMany } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Tag')
+            .fields([
+                text('Name'),
+                text('Slug').unique(),
+                belongsToMany('Post')
+            ]),
+        resource('Post')
+            .fields([
+                text('Title'),
+                textarea('Content'),
+                belongsToMany('Tag')
+            ]),
+    ])
+```
+
+Do not forget to define the reverse `belongsToMany()` relationship on the related resource.
+
+## Customizing relationship fields
+If you would like to customize how relationships are displayed on the CMS or exposed to the API, you can use the methods below:
+
+### Searchable relations
+By default, the `belongsTo()` relationship displays the related resource in a basic dropdown select.
+
+Take our library application as an example. An author has many books, and a book belongs to one author. On the CMS, when creating a book, we'll see a select dropdown showing all available authors in the application. If we have 10,000 authors, this dropdown won't cut it. We need a better way to handle this.
+
+You can call the `.searchable()` methon on the relationship field, and this will automatically change the component displayed on the CMS to a searchable combobox.
+
+```javascript
+belongsTo('Author').searchable()
+```
+
+
