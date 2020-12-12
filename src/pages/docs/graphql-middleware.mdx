@@ -1,0 +1,63 @@
+---
+title: Middleware
+description: How to extend graphql query functionality with middleware
+---
+
+Middleware provide an efficient way to manage additional functionality accross your query resolvers. Tensei makes use of the popular [graphql-middleware](https://github.com/maticzav/graphql-middleware) library to support middleware.
+
+## Registering middleware
+To add middleware to a specific graphql query, you may use the `.middleware(...)` function on the `GraphqlQuery` instance:
+
+```js
+const { tensei, graphQlQuery } = require('@tensei/core')
+
+tensei()
+    .graphQlQueries([
+        graphQlQuery('Get Purchases')
+            .query()
+            .path('get_customer_purchases')
+            .middleware(async (resolve, parent, args, ctx, info) => {
+                console.time('resolver_execution_time')
+                const result = await resolve(parent, args, ctx, info)
+                console.timeEnd('resolver_execution_time')
+
+                return result
+            })
+            .handle(async (parent, args, ctx, info) => ctx.user.purchases)
+    ])
+```
+
+You may also add middleware to already existing queries by using the `getQuery()` method in the `tensei.register()` hook:
+
+```js
+const { tensei } = require('@tensei/core')
+
+tensei()
+    .register(({ getQuery }) => {
+        getQuery('insert_comments')
+            ?.middleware(async (resolve, ...rest) => {
+                return resolve(...rest)
+            })
+    })
+```
+
+## Global middleware
+
+The `.middleware()` method registers middleware only for a specific query. If you want to register a global middleware, you can use a simple plugin. Plugins have access to the `.extendGraphQlMiddleware()` method. For example, this is how you would register the graphql pino middleware in your tensei application:
+
+```js
+const { tensei, plugin } = require('@tensei/core')
+
+const pino = require('pino')
+const graphqlPinoMiddleware = require('graphql-pino-middleware')
+
+tensei()
+    .plugins([
+        plugin('Add Global Middleware')
+            .register(({ extendGraphQlMiddleware }) => {
+                extendGraphQlMiddleware(graphqlPinoMiddleware({
+                    logger: pino()
+                }))
+            })
+    ])
+```

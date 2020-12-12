@@ -5,8 +5,6 @@ const pages = createPageList(
   'docs'
 )
 
-console.log(pages)
-
 export const documentationNav = {
   'Quick Start': [pages['getting-started'], pages['database-setup']],
   'Core Concepts': [
@@ -15,4 +13,18 @@ export const documentationNav = {
     pages['relationships'],
     pages['validation'],
   ],
+  'GraphQL API': [
+    pages['graphql-installation'],
+    pages['graphql-types'],
+    pages['graphql-customization'],
+    pages['graphql-authorization'],
+    pages['graphql-middleware'],
+  ],
+  'REST API': [
+    pages['rest-installation'],
+    pages['rest-routes'],
+    pages['rest-customization'],
+    pages['rest-authorization'],
+    pages['rest-middleware'],
+  ]
 }

@@ -1,0 +1,61 @@
+---
+title: Getting started
+description: How to install and start using the Tensei REST API plugin 
+---
+
+## Installation
+Tensei has first class support for REST APIs, with really smart features to ensure efficient and performant data loading. To get a fully featured and highly customisable REST API, you need to install the `@tensei/rest` package. It is shipped externally alongside the `@tensei/graphql` package.
+
+
+If you're generating a Tensei project using `create-tensei-app`, you may create an application with a Rest API by passing the `--rest` option.
+
+```shell
+yarn create tensei-app commerce --rest
+
+# Or using npm
+npx create-tensei-app commerce --rest
+```
+
+If you're adding to an already existing project, you may use the following command to install the plugin:
+
+```shell
+yarn add @tensei/rest
+
+# Or using npm
+npm install --save @tensei/rest
+```
+
+## Register REST plugin
+Once installed, require the plugin and add it to the `.plugins([])` array on the tensei instance:
+
+```js
+const { tensei } = require('@tensei/core')
+const { rest } = require('@tensei/graphql')
+
+tensei()
+    .resources([...])
+    .plugins([
+        rest().plugin()
+    ])
+    .start()
+```
+
+That's all you need. Configure some resources for your application, and start the node server. By default, all API routes should be available at `/api`. 
+
+## Custom API Path
+If you want to prefix the API routes with a different base path from the default `/api`, you may use the `.basePath()` method on the plugin instance:
+
+```js
+const { tensei } = require('@tensei/core')
+const { rest } = require('@tensei/graphql')
+
+tensei()
+    .resources([...])
+    .plugins([
+        rest()
+            .basePath('backend')
+            .plugin()
+    ])
+    .start()
+```
+

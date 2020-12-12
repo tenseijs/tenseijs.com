@@ -106,6 +106,6 @@ resource('Post')
     .fields([
         text('Title')
             .rules('required', 'max:255')
-            .sanitize('escape', 'lower_case')
+            .sanitize('escape')
     ])
 ```

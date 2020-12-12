@@ -1,0 +1,804 @@
+---
+title: Routes
+description: Understand the default generated API routes by the Tensei REST plugin
+---
+
+import ShowHide from '@/components/ShowHide'
+
+Tensei automatically generates a fully featured and customisable GraphQL API for all your defined resources. This API would have GET, POST, PATCH and DELETE operations for each resource.
+
+## Routes
+For each resource, a number of routes are generated. Let's take an example `Comment` resource. The comment resource has many `Reaction`s. 
+
+```js
+const { tensei, resource, text, textarea, select, hasMany, belongsTo } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('Comment')
+            .fields([
+                text('Title').sortable(),
+                textarea('Content'),
+                hasMany('Reaction')
+            ]),
+
+        resource('Reaction')
+            .fields([
+                select('Type')
+                    .options([{ label: 'Heart', value: 'heart' }, { label: 'Downvote', value: 'downvote' }]),
+                belongsTo('Comment')
+            ])
+    ])
+```
+
+The following routes will be generated for the Comment resource:
+
+- `GET /api/comments` fetches, filter and sort comments.
+- `GET /api/comments/:id` fetches a single comment by ID.
+- `GET /api/comments/:id/:relatedResource` fetches a relation to a single comment by ID.
+- `POST /api/comments` inserts a single comment to the database.
+- `PATCH /api/comments/:id` updates a single comment by ID.
+- `DELETE /api/comments/:id ` deletes a single comment by ID from the database.
+
+### Fetch all resources
+
+This endpoint may be used to fetch, filter and sort all records of a resource. For example, `GET /api/comments` fetches all comments in the database. The following is sample data returned from this endpoint:
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Officiis accusantium delectus voluptatem ea.",
+            "content": "Quia pariatur sit iusto mollitia explicabo voluptatem adipisci odio maxime.",
+        },
+        {
+            "id": 2,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "voluptatem adipisci odio maxime.",
+            "content": "Quia pariatur sit iusto mollitia explicabo voluptatem adipisci odio maxime.",
+        },
+        {
+            "id": 3,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Harum molestiae corrupti qui deserunt ipsam qui.",
+            "content": "Harum molestunt ipsam qui.",
+        },
+        {
+            "id": 4,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+            "content": "Aliquid qque nesciunt.",
+        },
+        {
+            "id": 5,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Et saepe ad amet qui omnis aut voluptatem ut molestiae.",
+            "content": "Et saepe auptatem ut molestiae.",
+        }
+    ],
+    "meta": {
+        "total": 1009,
+        "page": 1,
+        "per_page": 5,
+        "page_count": 202
+    }
+}
+```
+
+### Fetch single resource
+
+This endpoint may be used to fetch a single record of a resource. For example, `GET /api/comments/1` fetches a single comment in the database with ID of 1. The following is sample data returned from this endpoint:
+
+```json
+{
+    "data": {
+        "id": 1,
+        "created_at": "2020-12-07T17:47:19.000Z",
+        "updated_at": "2020-12-07T17:47:19.000Z",
+        "title": "Quasi libero rerum optio architecto quaerat.",
+        "content": "um optio architecto quae Quasi libero rerum optio architecto quaerat.",
+    }
+}
+```
+
+This endpoint also supports [selecting fields](#selecting-fields), [populating relationships](#populating-relationships) and [deep population](#deep-population)
+
+
+### Fetch related resource
+
+This endpoint may be used to fetch relations of a single record. For example, `GET /api/comments/1/reactions` fetches all the reactions for a comment. This is a great way to fetch related records for large data sets, since you can [paginate](#pagination), [sort](#sorting), [select fields](#selecting-fields), [populate relationships](#populating-relationships) and [deep populate](#deep-population) the related resource.
+
+Calling this endpoint returns the following data:
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "created_at": "2020-12-11T15:37:58.000Z",
+            "updated_at": "2020-12-11T15:37:58.000Z",
+            "type": null,
+            "comment": 1
+        },
+        {
+            "id": 2,
+            "created_at": "2020-12-11T15:38:17.000Z",
+            "updated_at": "2020-12-11T15:38:17.000Z",
+            "type": "heart",
+            "comment": 1
+        },
+        {
+            "id": 3,
+            "created_at": "2020-12-11T15:38:23.000Z",
+            "updated_at": "2020-12-11T15:38:23.000Z",
+            "type": "downvote",
+            "comment": 1
+        },
+        {
+            "id": 4,
+            "created_at": "2020-12-11T15:38:25.000Z",
+            "updated_at": "2020-12-11T15:38:25.000Z",
+            "type": "downvote",
+            "comment": 1
+        },
+        {
+            "id": 5,
+            "created_at": "2020-12-11T15:38:26.000Z",
+            "updated_at": "2020-12-11T15:38:26.000Z",
+            "type": "downvote",
+            "comment": 1
+        },
+        {
+            "id": 6,
+            "created_at": "2020-12-11T15:38:26.000Z",
+            "updated_at": "2020-12-11T15:38:26.000Z",
+            "type": "downvote",
+            "comment": 1
+        }
+    ],
+    "meta": {
+        "total": 6,
+        "page": 0,
+        "per_page": 0,
+        "page_count": 0
+    }
+}
+```
+
+Please note that if you call this endpoint with a one-to-one or many-to-one relationship, the `data` property will contain an object and not an array. For example, if we call `GET /api/reactions/1/comment` to get the comment related to the resource with the ID of `1`. 
+
+```json
+{
+    "data": {
+        "id": 1,
+        "created_at": "2020-12-07T17:47:19.000Z",
+        "updated_at": "2020-12-07T17:47:19.000Z",
+        "title": "Quasi libero rerum optio architecto quaerat.",
+        "content": "Praesentium facilis ab perspiciatis quidem.",
+    }
+}
+```
+
+### Insert resource
+This endpoint may be used to insert resource records into the database. For example, to create a comment, we may use the `POST /api/comments` endpoint.
+
+```http
+POST /api/comments?populate=reactions.comment HTTP/1.1
+Host: localhost:4500
+Content-Type: application/json
+
+{
+	"title": "ero rerum optio architecto quaera",
+	"content": "sentium facilis ab perspiciatis quide"
+}
+```
+
+Notice that this endpoint supports [populating relationships](#populating-relationships) and [deep population](#deep-population). You may pass parameters to populate the newly created record.
+
+### Update resource
+This endpoint may be used to update a resource by ID. For example, to update a comment of ID 1, we may use the `PATCH /api/comments/1` endpoint:
+
+```https
+PATCH /api/comments/1?populate=reactions.comment HTTP/1.1
+Host: localhost:4500
+Content-Type: application/json
+
+{
+	"title": "ero rerum optio architecto quaera",
+	"content": "sentium facilis ab perspiciatis quide"
+}
+```
+
+Notice that this endpoint supports [populating relationships](#populating-relationships) and [deep population](#deep-population). You may pass parameters to populate the record once it is updated.
+
+### Delete resource
+This endpoint may be used to delete a resource by ID. For example, to delete a comment of ID 1, we may use the `DELETE /api/comments/1` endpoint:
+
+```https
+DELETE /api/comments/101?populate=reactions.comment HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+```
+
+This endpoint supports [populating relationships](#populating-relationships) and [deep population](#deep-population). You may pass parameters to populate the deleted record. You'll get a snapshot of the record before it is removed from the database.
+
+## Query Parameters
+
+### Pagination
+Pagination is a great way to control the amount of data pulled out of your database at a time. You may paginate this endpoint using the `per_page` and `page` query parameters. To find a maximum of 5 comments offsetting the data by 10, you may use the following url and parameters:
+
+```
+http://localhost:4500/api/comments?page=2&per_page=5
+```
+
+### Selecting Fields
+Sometimes you may wish to get only specific fields from a resource. To do this, you may use the `fields` query parameter, with a comma separated list of all the fields you want returned:
+
+```
+http://localhost:4500/api/comments?fields=title
+```
+
+The following data should be returned from the API:
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "title": "Aliquid quos iure et consequatur itaque nesciunt."
+        },
+        {
+            "id": 2,
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+        },
+        {
+            "id": 3,
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+        },
+        {
+            "id": 4,
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+        },
+        {
+            "id": 5,
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+        }
+    ],
+    "meta": {
+        "total": 1009,
+        "page": 1,
+        "per_page": 5,
+        "page_count": 202
+    }
+}
+```
+
+### Populating relationships
+You may need to populate relationship data when fetching data. By default, no relationship data is populated. To populate a list of relationships, you may pass the `populate` query parameter, with a comma separated list of all relationships you want to populate:
+
+```
+http://localhost:4500/api/comments?populate=reactions
+```
+
+This will efficiently fetch all reactions related to the comments returned from this API call. 
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+            "content": "Aliquid qque nesciunt.",
+            "reactions": [
+                {
+                    "id": 1,
+                    "created_at": "2020-12-11T15:37:58.000Z",
+                    "updated_at": "2020-12-11T15:37:58.000Z",
+                    "type": null,
+                    "comment": 1
+                },
+                {
+                    "id": 2,
+                    "created_at": "2020-12-11T15:38:17.000Z",
+                    "updated_at": "2020-12-11T15:38:17.000Z",
+                    "type": "heart",
+                    "comment": 1
+                },
+                {
+                    "id": 3,
+                    "created_at": "2020-12-11T15:38:23.000Z",
+                    "updated_at": "2020-12-11T15:38:23.000Z",
+                    "type": "downvote",
+                    "comment": 1
+                },
+                {
+                    "id": 4,
+                    "created_at": "2020-12-11T15:38:25.000Z",
+                    "updated_at": "2020-12-11T15:38:25.000Z",
+                    "type": "downvote",
+                    "comment": 1
+                },
+                {
+                    "id": 5,
+                    "created_at": "2020-12-11T15:38:26.000Z",
+                    "updated_at": "2020-12-11T15:38:26.000Z",
+                    "type": "downvote",
+                    "comment": 1
+                },
+                {
+                    "id": 6,
+                    "created_at": "2020-12-11T15:38:26.000Z",
+                    "updated_at": "2020-12-11T15:38:26.000Z",
+                    "type": "downvote",
+                    "comment": 1
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+            "content": "Aliquid qque nesciunt.",
+            "reactions": []
+        },
+        {
+            "id": 3,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+            "content": "Aliquid qque nesciunt.",
+            "reactions": []
+        },
+        {
+            "id": 4,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+            "content": "Aliquid qque nesciunt.",
+            "reactions": []
+        },
+        {
+            "id": 5,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Aliquid quos iure et consequatur itaque nesciunt.",
+            "content": "Aliquid qque nesciunt.",
+            "reactions": []
+        }
+    ],
+    "meta": {
+        "total": 1009,
+        "page": 1,
+        "per_page": 5,
+        "page_count": 202
+    }
+}
+```
+
+You may also populate nested relationships by adding a `.` separator in the populate relationships passed. For example, for each reaction, you may want to in turn populate the comment. To achieve this, you'll use the following URL:
+
+```shell
+http://localhost:4500/api/comments?populate=reactions.comment
+```
+
+The data returned from the above query would be:
+
+```js
+{
+    "data": [
+        {
+            "id": 1,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Quasi libero rerum optio architecto quaerat.",
+            "reactions": [
+                {
+                    "id": 1,
+                    "created_at": "2020-12-11T15:37:58.000Z",
+                    "updated_at": "2020-12-11T15:37:58.000Z",
+                    "type": null,
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat."
+                    }
+                },
+                {
+                    "id": 2,
+                    "created_at": "2020-12-11T15:38:17.000Z",
+                    "updated_at": "2020-12-11T15:38:17.000Z",
+                    "type": "heart",
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat."
+                    }
+                },
+                {
+                    "id": 3,
+                    "created_at": "2020-12-11T15:38:23.000Z",
+                    "updated_at": "2020-12-11T15:38:23.000Z",
+                    "type": "downvote",
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat."
+                    }
+                },
+                {
+                    "id": 4,
+                    "created_at": "2020-12-11T15:38:25.000Z",
+                    "updated_at": "2020-12-11T15:38:25.000Z",
+                    "type": "downvote",
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat."
+                    }
+                },
+                {
+                    "id": 5,
+                    "created_at": "2020-12-11T15:38:26.000Z",
+                    "updated_at": "2020-12-11T15:38:26.000Z",
+                    "type": "downvote",
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat."
+                    }
+                },
+                {
+                    "id": 6,
+                    "created_at": "2020-12-11T15:38:26.000Z",
+                    "updated_at": "2020-12-11T15:38:26.000Z",
+                    "type": "downvote",
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat."
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Cum est dolor.",
+            "reactions": []
+        },
+        {
+            "id": 3,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Eos veniam explicabo tempora ullam modi sint sit tenetur.",
+            "reactions": []
+        },
+        {
+            "id": 4,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Et nam earum qui quo sapiente sed.",
+            "reactions": []
+        },
+        {
+            "id": 5,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Cupiditate necessitatibus quo qui hic ea libero ut.",
+            "reactions": []
+        }
+    ],
+    "meta": {
+        "total": 1009,
+        "page": 1,
+        "per_page": 5,
+        "page_count": 202
+    }
+}
+```
+
+Populating using this method fetches all related data, and we recommend using this for small to medium sized data sets only. If you have a large data set, please visit the [deep populate section](/docs/rest-routes#deep-populate).
+
+### Sorting
+
+Sometimes you may wish to sort the database records by one or more fields in specific orders. To do this, you may use the `sort` query parameter, passing the field and direction as shown below:
+
+```shell
+http://localhost:4500/api/comments?sort=title:asc,created_at:desc
+```
+
+The data returned should be sorted as shown below:
+
+```json
+{
+    "data": [
+        {
+            "id": 48,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "A dolor nemo atque tenetur voluptatem dolorem alias saepe."
+        },
+        {
+            "id": 427,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "A et natus corporis aut reiciendis et."
+        },
+        {
+            "id": 571,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "A rerum velit inventore laboriosam est cumque vel assumenda."
+        },
+        {
+            "id": 782,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Ab cupiditate in vel."
+        },
+        {
+            "id": 955,
+            "created_at": "2020-12-07T17:47:20.000Z",
+            "updated_at": "2020-12-07T17:47:20.000Z",
+            "title": "Ab velit animi iure occaecati qui provident molestiae cumque ducimus."
+        }
+    ],
+    "meta": {
+        "total": 1009,
+        "page": 1,
+        "per_page": 5,
+        "page_count": 202
+    }
+}
+```
+
+### Filtering
+
+Sometimes you want to filter database records by some query condition. You may use the `where` query parameter to provide a fully descriptive filtering criteria. This parameter should be a stringified object. Here's an example query filtering all comments with titles that match some text:
+
+```shell
+http://localhost:4500/api/comments?where[title][_like]=%tenetur%
+```
+
+The results returned will filter only records with title matching this text:
+
+```json
+{
+    "data": [
+        {
+            "id": 48,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "A dolor nemo atque tenetur voluptatem dolorem alias saepe."
+        },
+        {
+            "id": 407,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Commodi tenetur consectetur fugiat ullam."
+        },
+        {
+            "id": 476,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Consequatur tenetur natus et est in."
+        },
+        {
+            "id": 3,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Eos veniam explicabo tempora ullam modi sint sit tenetur."
+        },
+        {
+            "id": 135,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Est enim maxime tenetur."
+        }
+    ],
+    "meta": {
+        "total": 25,
+        "page": 1,
+        "per_page": 5,
+        "page_count": 5
+    }
+}
+```
+
+Here are the possible filters you can use:
+
+```json
+  where[field][_eq]
+  where[field][_in]
+  where[field][_nin]
+  where[field][_gt]
+  where[field][_gte]
+  where[field][_lt]
+  where[field][_lte]
+  where[field][_ne]
+  where[field][_not]
+  where[field][_like]
+  where[field][_re]
+  where[field][_ilike] // postgres only
+  where[field][_overlap] // postgres only
+  where[field][_contains] // postgres only
+  where[field][_contained] // postgres only
+```
+
+You may also pass in `_and` and `_or` for multiple filter criteria. Here's an example to filter by title, or by certain ids:
+
+```shell
+http://localhost:4500/api/comments?where[_or][0][title][_like]=%25tenetur%25&where[_or][1][id][_in][0]=1&where[_or][1][id][_in][1]=2&where[_or][1][id][_in][2]=3&where[_or][1][id][_in][3]=4&where[_or][1][id][_in][4]=5&where[_or][1][id][_in][5]=6&where[_or][1][id][_in][6]=7&where[_or][1][id][_in][7]=8&where[_or][1][id][_in][8]=9&where[_or][1][id][_in][9]=10'
+```
+
+The query becomes really complex to write when there are too many conditions. We recommend using the [lightweight qs library](https://www.npmjs.com/package/qs) to easily stringify queries before making API calls. The example query above becomes really easy to understand when written like this:
+
+```js
+import qs from 'qs'
+
+const query = qs.stringify({
+    where: {
+        _or: [
+            {
+                title: {
+                    _like: '%tenetur%',
+                },
+            },
+            {
+                id: {
+                    _in: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                },
+            },
+        ],
+    },
+}, { encodeValuesOnly: true })
+
+axios.get(`http://localhost:4500/api/comments?${query}`)
+```
+
+### Deep population
+When populating data, you might need more control over the data populated. For example, you may want to find all comments, and populate only the first 3 reactions for each comment. For such operations, the REST API supports deep population, where you provide a detailed outline of population criteria.
+
+Here's an example, where we want to find all comments, populate only 3 reactions for each comment, filtering the reactions to only `downvote` type reactions:
+
+```js
+import qs from 'qs'
+
+const query = qs.stringify({
+    deep_populate: [
+        {
+            relation: 'reactions',
+            limit: 3,
+            offset: 0,
+            where: {
+                type: {
+                    _eq: 'downvote',
+                },
+            },
+            deep_populate: [{
+                relation: 'comment',
+                deep_populate: [{
+                    relation: 'reactions',
+                    limit: 1,
+                }]
+            }]
+        },
+    ],
+}, { encodeValuesOnly: true })
+
+axios.get(`http://localhost:4500/api/comments?${query}`)
+```
+
+The following data will be returned for the above query:
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Quasi libero rerum optio architecto quaerat.",
+            "reactions": [
+                {
+                    "id": 1,
+                    "created_at": "2020-12-11T15:37:58.000Z",
+                    "updated_at": "2020-12-11T15:37:58.000Z",
+                    "type": 'downvote',
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat.",
+                        "reactions": [
+                            {
+                                "id": 1,
+                                "created_at": "2020-12-11T15:37:58.000Z",
+                                "updated_at": "2020-12-11T15:37:58.000Z",
+                                "type": 'downvote'
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": 2,
+                    "created_at": "2020-12-11T15:38:17.000Z",
+                    "updated_at": "2020-12-11T15:38:17.000Z",
+                    "type": "downvote",
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat.",
+                        "reactions": [
+                            {
+                                "id": 1,
+                                "created_at": "2020-12-11T15:37:58.000Z",
+                                "updated_at": "2020-12-11T15:37:58.000Z",
+                                "type": 'heart'
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": 4,
+                    "created_at": "2020-12-11T15:38:25.000Z",
+                    "updated_at": "2020-12-11T15:38:25.000Z",
+                    "type": "downvote",
+                    "comment": {
+                        "id": 1,
+                        "created_at": "2020-12-07T17:47:19.000Z",
+                        "updated_at": "2020-12-07T17:47:19.000Z",
+                        "title": "Quasi libero rerum optio architecto quaerat.",
+                        "reactions": [
+                            {
+                                "id": 1,
+                                "created_at": "2020-12-11T15:37:58.000Z",
+                                "updated_at": "2020-12-11T15:37:58.000Z",
+                                "type": null
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Cum est dolor.",
+            "reactions": []
+        },
+        {
+            "id": 3,
+            "created_at": "2020-12-07T17:47:19.000Z",
+            "updated_at": "2020-12-07T17:47:19.000Z",
+            "title": "Eos veniam explicabo tempora ullam modi sint sit tenetur.",
+            "reactions": []
+        }
+    ],
+    "meta": {
+        "total": 1009,
+        "page": 1,
+        "per_page": 5,
+        "page_count": 202
+    }
+}
+```

@@ -1,0 +1,105 @@
+---
+title: Getting started
+description: How to install and start using the Tensei graphql plugin 
+---
+
+## Installation
+Tensei has first class support for GraphQL. To get a fully featured and highly customisable GraphQL API, you need to install the `@tensei/graphql` package. It is shipped externally alongside the `@tensei/rest` package.
+
+If you generated a Tensei project using `create-tensei-app`, this plugin might already be installed and ready to go in your application. Otherwise, you can install it using the following command:
+
+```shell
+yarn add @tensei/graphql
+
+# Or using npm
+npm install --save @tensei/graphql
+```
+
+## Register GraphQL Plugin
+
+Once installed, require the plugin and add it to the `.plugins([])` array on the tensei instance:
+
+```js
+const { tensei } = require('@tensei/core')
+const { graphql } = require('@tensei/graphql')
+
+tensei()
+    .resources([...])
+    .plugins([
+        graphql().plugin()
+    ])
+    .start()
+```
+
+That's all you need. Configure some resources for your application, and start the node server. By default, the API should be available at `/graphql`. 
+
+## Apollo Server Options
+Behind the scenes, Tensei creates a new apollo server instance to serve your GraphQL API. You may pass additional configuration options to the Apollo server using the `.configure()` method on th
+e graphql plugin:
+
+```js
+const { tensei } = require('@tensei/core')
+const { graphql } = require('@tensei/graphql')
+
+tensei()
+    .plugins([
+        graphql()
+            .configure({
+                playground: false
+            })
+            .plugin()
+    ])
+    .start()
+```
+
+## Middleware options
+By default, Apollo server express ships with some default express middleware such as cors and bodyparser. You may customize the options passed to Apollo to configure the express middleware using the `.middlewareOptions()` method:
+
+```js
+const { tensei } = require('@tensei/core')
+const { graphql } = require('@tensei/graphql')
+
+tensei()
+    .plugins([
+        graphql()
+            .middlewareOptions({
+                path: '/api',
+                disableHealthCheck: true
+            })
+            .plugin()
+    ])
+    .start()
+```
+
+## Enable subscriptions
+By default, subscriptions are not enabled. You may call the `.subscriptions()` method to enable subscriptions.
+
+```js
+const { tensei } = require('@tensei/core')
+const { graphql } = require('@tensei/graphql')
+
+tensei()
+    .plugins([
+        graphql()
+            .subscriptions()
+            .plugin()
+    ])
+    .start()
+```
+
+In development, Apollo Server will use the default in-memory PubSub, and it is intended for demo purposes only. For production usage, you may pass a custom PubSub instance to the `.subscriptions()` method:
+
+```js
+const { tensei } = require('@tensei/core')
+const { graphql } = require('@tensei/graphql')
+const { RedisPubSub } = require('graphql-redis-subscriptions')
+
+tensei()
+    .plugins([
+        graphql()
+            .subscriptions(new RedisPubSub())
+            .plugin()
+    ])
+    .start()
+```
+

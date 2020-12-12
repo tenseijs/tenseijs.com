@@ -1,0 +1,70 @@
+---
+title: Customization
+description: How to add custom routes, and modify existing routes
+---
+
+## Add routes
+Tensei provides a simple way to define API routes. Each route is a `Route` instance. You may create a route using the `route()` method exported from the tensei package. Let's define an example route using this method:
+
+```js
+const { route } = require('@tensei/core')
+
+route('Get user invoices')
+    .post()
+    .path('users/:id/invoices')
+    .id('users_invoices')
+    .handle(async (request, response) => {
+        const { manager, params } = request
+
+        const invoices = await manager.find('Invoice', { user: params.id })
+
+        return response.json(invoices)
+    })
+```
+
+- `route(name)` creates a new `Route` instance, giving it a name.
+- `.post()` makes this route a `POST` request. You may use the `.put()`, `.patch()`, `.delete()` or `.get()` routes also.
+- `.path()` defines the resource path.
+- `.id()` gives this route a unique ID so we can find it later. Other plugins may define IDs on routes so you can access them.
+- `handle()` defines an express handler for the resource.
+
+To register custom routes with the tensei application, you may call the `.routes()` method on the tensei instance:
+
+```js
+const { tensei, route } = require('@tensei/core')
+
+tensei()
+    .routes([
+        route('Get user invoices')
+            .post()
+            .path('users/:id/invoices')
+            .handle(async (request, response) => {
+                const { manager, params } = request
+
+                const invoices = await manager.find('Invoice', { user: params.id })
+
+                return response.json(invoices)
+            })
+    ])
+```
+
+If you are developing a plugin, you may use the `.extendRoutes()` method to add custom routes to the api:
+
+```js
+const { tensei, plugin } = require('@tensei/core')
+
+module.exports = () => plugin('Invoices').register(({ extendRoutes }) => {
+    extendRoutes([
+        route('Get user invoices')
+            .post()
+            .path('users/:id/invoices')
+            .handle(async (request, response) => {
+                const { manager, params } = request
+
+                const invoices = await manager.find('Invoice', { user: params.id })
+
+                return response.json(invoices)
+            })
+    ])
+})
+```

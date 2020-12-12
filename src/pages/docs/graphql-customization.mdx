@@ -1,0 +1,98 @@
+---
+title: Customization
+description: Learn how to add custom types, queries, subscriptions and middleware to the GraphQL API
+---
+
+You may need to add custom type definitions, queries and mutations to the GraphQL API. Tensei makes this easy by exposing a simple API to handle this.
+
+## Add custom types
+
+You may use the `.graphQlTypeDefs()` method on the tensei instance to add custom type definitions:
+
+```js
+tensei()
+    .graphQlTypeDefs([`
+        type aggregate_comments {
+            count: Int!
+            average: Int!
+        }
+
+        extend type Query {
+            aggregate_comments: aggregate_comments
+        }
+    `])
+```
+
+If you are developing a plugin, you may use the `.extendGraphQlTypeDefs()` method to extend the types:
+
+```js
+plugin('Database backup plugin')
+    .register(({ extendGraphQlTypeDefs }) => {
+        extendGraphQlTypeDefs([`
+            type database_backup {
+                file_name: String!
+                created_at: String!
+            }
+
+            extend type Mutation {
+                backup_database(database_name: String!): Boolean!
+            }
+
+            extend type Query {
+                get_existing_backups(): database_backup!
+            }
+        `])
+    })
+```
+
+## Add custom queries
+
+All GraphQL queries in Tensei are defined using a `GraphQlQuery` instance. To create an instance, Tensei exports a `graphQlQuery` method. Let's define an example mutation using this method:
+
+```js
+const { graphQlQuery } = require('@tensei/core')
+
+graphQlQuery('Get database backups') // Create a new GraphQLQuery instance, giving it a name
+    .mutation() // Make this instance a mutation type. .query() and .subscription() are also supported
+    .path('get_database_backups') // Define the mutation, query or subscription path for this query
+    .handle(async (parent, args, ctx, info) => {
+        const backups = await ctx.manager.find('Backup', {}, { limit: 5 })
+
+        return backups
+    }) // Provide the resolver for this query
+```
+
+- The `graphQlQuery(name)` method creates a new `GraphQLQuery` instance, giving it a name
+- The `.mutation()` method makes this instance a mutation type. `.query()` and `.subscription()` are also supported.
+- The `.path()` method assigns the specific path for this query.
+- The `.handle()` method defines the query resolver.  
+
+To register your custom queries with the tensei application, you may call the `.graphQlQueries()` method on the tensei instance:
+
+```js
+const { tensei, graphQlQuery } = require('@tensei/core')
+
+tensei()
+    .graphQlQueries([
+        graphQlQuery('Get Purchases')
+            .query()
+            .path('get_customer_purchases')
+            .handle(async (parent, args, ctx, info) => ctx.user.purchases)
+    ])
+```
+
+Likewise, if you are developing a plugin, you may use the `.extendGraphQlQueries()` method to add custom graphql queries to the api:
+
+```js
+const { graphQlQuery } = require('@tensei/common')
+
+module.exports = () => plugin('Get Purchases')
+    .register(({ extendGraphQlQueries }) => {
+        extendGraphQlQueries([
+            graphQlQuery('Get Purchases')
+                .query()
+                .path('get_customer_purchases')
+                .handle(async (parent, args, ctx, info) => ctx.user.purchases)
+        ])
+    })
+```
