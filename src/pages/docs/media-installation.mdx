@@ -1,0 +1,124 @@
+---
+title: Getting started
+description: The media plugin for Tensei. How to handle file uploads
+---
+
+When building production-ready applications, efficiently handling file uploads is critical. Tensei provides a plugin to abstract this functionality for you.
+
+This plugin provides a file upload REST API endpoint and GraphQL query, and a way to associate file uploads to any application resources.
+
+To install this plugin, run the following command:
+
+```shell
+yarn add @tensei/media
+
+# Or using npm
+npm install --save @tensei/media
+```
+
+## Register plugin
+Once installed, you may register this plugin with your tensei application using the `.plugins()` method on the Tensei instance:
+
+```js
+const { tensei } = require('@tensei/core')
+const { media } = require('@tensei/media')
+
+tensei()
+    .plugins([
+        media()
+            .plugin()
+    ])
+```
+
+## Add media to resources
+Once you register the media plugin, you may need to associate existing resources to your application to uploaded files. To do this, the media plugin exports a `file()` and `files()` field. These fields create a `hasOne()` and `hasMany()` relationship between the resource and the media plugin resource respectively.
+
+Since Mikro ORM does not support polymorphic relationships at the moment, the media plugin uses a Single-Table Inheritance approach to associating resources with file uploads.
+
+Let's take an example social networking application. We want users to have multiple profile pictures, and a single avatar:
+
+```js
+const { media, files, file } = require('@tensei/media')
+const { tensei, resource, text } = require('@tensei/core')
+
+tensei()
+    .resources([
+        resource('User')
+            .fields([
+                text('Full Name'),
+                file('Avatar'),
+                files('Profile Pictures'),
+            ])
+    ])
+    .plugins([
+        media()
+            .plugin()
+    ])
+```
+
+## Uploading files
+You may upload files to the REST or GraphQL APIs. Here's an example on how to upload files using Axios to the Rest API:
+
+```js
+import Axios from 'axios'
+
+async function upload(event) {
+    const { files } = event.target
+
+    const form = new FormData()
+
+    files.forEach(file => form.append('files', file))
+
+    Axios.post('http://localhost:4500/files', form, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    }).then((uploaded_files) => {
+        // console.log(uploaded_files)
+    })
+}
+```
+
+The data returned from the API would contain `File` instances, with all information about the uploaded files. Here's sample data from a file upload:
+
+```js
+{
+    "data": [
+        {
+            "id": 6,
+            "size": 24765,
+            "original_filename": "avatar.jpeg",
+            "extension": "jpeg",
+            "mime_type": "image/jpeg",
+            "hash": "c8b0019021cfbc19b44e0cffb56296115ca0b387dca19de9b64db1b420d933e2bb632af1",
+            "path": "/",
+            "disk": "local",
+            "transformations": []
+        },
+        {
+            "id": 7,
+            "size": 16685,
+            "original_filename": "4X4.JPG",
+            "extension": "JPG",
+            "mime_type": "image/jpeg",
+            "hash": "724cca2d3a8a1d040ccd92a05b16b7bcacd497dd00231467e5984bf8aca15b6a78cc7f63",
+            "path": "/",
+            "disk": "local",
+            "transformations": []
+        }
+    ]
+}
+```
+
+After uploading files, you may now associate model instances with the ID of the returned file instances. For example, you may make a PATCH request to update a user's profile with the uploaded files:
+
+```js
+PATCH /api/users/1?populate=avatar,profile_pictures HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+
+{
+	"avatar": 5, // ID of uploaded file
+	"profile_pictures": [6, 7] // ID of uploaded files
+}
+```

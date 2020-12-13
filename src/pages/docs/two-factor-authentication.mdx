@@ -1,0 +1,56 @@
+---
+title: Two factor auth
+description: Implementing two factor authentication with Tensei
+---
+
+For added security, you may want to add two-factor authentication to your application. To enable this feature, you may call the `twoFactorAuth()` method on the auth plugin instance:
+
+```js
+const { auth } = require('@tensei/auth')
+const { tensei } = require('@tensei/core')
+
+tensei()
+    .plugins([
+        auth()
+            .twoFactorAuth()
+            .plugin()
+    ])
+```
+
+This generates new types for the GraphQL API:
+
+```graphql
+input disable_user_two_factor_auth_input {
+  token: Int!
+}
+
+input confirm_enable_user_two_factor_auth_input {
+  token: Int!
+}
+
+type enable_user_two_factor_auth_response {
+  dataURL: String!
+}
+
+extend type Mutation {
+    enable_user_two_factor_auth: enable_user_two_factor_auth_response!
+    disable_user_two_factor_auth(object: disable_user_two_factor_auth_input!): user!
+    confirm_user_enable_two_factor_auth(object: confirm_enable_user_two_factor_auth_input!): user!
+}
+```
+
+## Two-factor flow
+- First, a user logins in to your application. By default, two-factor authentication is disabled.
+
+- You need to inform the user to download one of the two-factor authentication mobile applications such as Authy or Google Authenticator.
+
+- The user clicks on `Enable`. At this point, you make a call to the `enable_user_two_factor_auth` mutation or `POST auth/two-factor/enable` endpoint. 
+
+- This endpoint returns a base64 data URL. You need to render this as an image, and instruct the user to scan this image using the mobile app downloaded earlier.
+ 
+- The mobile application should correctly display a two-factor token that expires every few seconds.
+
+- Your client-side application at this point should request the user provide a valid token to confirm two-factor authentication.
+
+- As a final step, you need to call the `confirm_user_enable_two_factor_auth` mutation or `POST auth/two-factor/confirm` endpoint with the two-factor token. The auth plugin will enable two-factor authentication for this user.
+

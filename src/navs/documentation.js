@@ -26,5 +26,13 @@ export const documentationNav = {
     pages['rest-customization'],
     pages['rest-authorization'],
     pages['rest-middleware'],
+  ],
+  'Media Uploads': [
+    pages['media-installation'],
+  ],
+  'Auth': [
+    pages['auth-installation'],
+    pages['auth-email-verification'],
+    pages['two-factor-authentication'],
   ]
 }

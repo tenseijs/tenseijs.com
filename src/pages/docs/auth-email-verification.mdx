@@ -1,0 +1,75 @@
+---
+title: Verify emails
+description: How to handle email verification with Tensei auth
+---
+
+You may need to verify emails in your application. To enable this functionality, you may call the `.verifyEmails()` method on the auth plugin instance:
+
+```js
+const { auth } = require('@tensei/auth')
+const { tensei } = require('@tensei/core')
+
+tensei()
+    .plugins([
+        auth()
+            .verifyEmails()
+            .plugin()
+    ])
+```
+
+Enabling this feature will add two new fields to the user resource:
+- `Email Verification Token`, a text field to store a unique token sent to the user's email for confirmation
+- `Email Verified At`, a nullable datetime field that saves when a user's email was verified. You may check if this field is null to know if the user's account is verified or not.
+
+## Verify emails
+Enabling this feature adds a new mutation to the GraphQL API and a new route to the Rest API.
+
+```graphql
+input confirm_user_email_input {
+  email_verification_token: String!
+}
+
+extend Mutation {
+  confirm_user_email(object: confirm_user_email_input!): user!
+  resend_user_verification_email: Boolean
+}
+```
+
+A new route `POST auth/emails/verification/confirm` is also added. This endpoint requires passing the `email_verification_token` from the user's email in the request body.
+
+```js
+import axios from 'axios'
+
+const instance = Axios.create({
+    baseURL: 'http://localhost:4500'
+})
+
+instance.post('auth/emails/verification/confirm', {
+    email_verification_token: 'whcnzm8h34xdq828car7vvgsm96n9dbe6etgbkvs'
+}).then(console.log)
+```
+
+## Resend verification email
+You may want to add a `Resend Verification email` button on your client-side application. This plugin provides a GraphQL mutation for resending the confirmation email. The user must be authenticated to make this request.
+
+Here's an example with apollo client:
+
+```js
+import { ApolloClient, gql } from '@apollo/client'
+
+const RESEND_VERIFICATION_EMAIL = gql`
+    mutation resend_user_verification_email {
+        resend_user_verification_email
+    }
+`
+
+const client = new ApolloClient({
+    uri: 'http://localhost:4500'
+})
+
+client.query({
+    query: RESEND_VERIFICATION_EMAIL
+}).then(console.log)
+```
+
+You may also use the REST api endpoint `POST auth/emails/verification/resend` to resend a confirmation email to the user. No payload is needed for this endpoint.

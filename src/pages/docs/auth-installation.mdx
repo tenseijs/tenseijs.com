@@ -1,0 +1,299 @@
+---
+title: Getting Started
+description: How to setup authentication in Tensei applications
+---
+import { List, ListItemGood } from '@/components/List'
+
+Tensei ships with a fully featured and cutomisable authentication system via the `@tensei/auth` plugin package. Out of the box you get:
+
+<List>
+  <ListItemGood>
+    Session-based authentication
+  </ListItemGood>
+  <ListItemGood>
+    JWT authentication with refresh tokens and refresh token rotation
+  </ListItemGood>
+  <ListItemGood>
+    Social authentication
+  </ListItemGood>
+  <ListItemGood>
+    Role based access control
+  </ListItemGood>
+  <ListItemGood>
+    Email verification & Confirmation
+  </ListItemGood>
+  <ListItemGood>
+    Password resets
+  </ListItemGood>
+  <ListItemGood>
+    Two-factor authentication
+  </ListItemGood>
+  <ListItemGood>
+    User blocking / Unblocking
+  </ListItemGood>
+</List>
+
+## Installation
+You may install the auth plugin with the following command:
+
+```shell
+yarn add @tensei/auth
+
+# Or with nom 
+npm install --save @tensei/auth
+```
+
+## Register the plugin
+You may register the auth plugin by adding it to the `plugins()` method of your tensei instance:
+
+```js
+const { auth } = require('@tensei/auth')
+const { tensei } = require('@tensei/core')
+
+tensei()
+    .plugins([
+        auth().plugin()
+    ])
+```
+
+Make sure this plugin is registered before the `graphql()` or `rest()` plugins, that way, it can register new routes, queries and types before the API is booted.
+
+## Session-based authentication
+By default, once you register the plugin, you have secure, cookie-based authentication setup. This method of authentication is highly recommended for web applications running on the same domain. 
+
+Since third-party cookies are not fully supported, if your frontend application is running on a different domain from your backend, you may need to use JWT authentication.
+
+By default, the auth plugin adds the following types and queries to the GraphQL API:
+
+```graphql
+input insert_user_input {
+  email: String!
+  password: String!
+}
+
+type user {
+    id: ID!
+    email: String
+    created_at: String
+    updated_at: String
+}
+
+type register_user_response {
+  user: user!
+}
+
+type login_user_response {
+  user: user!
+}
+
+input reset_user_password_input {
+  email: String!
+  token: String!
+  password: String!
+}
+
+input request_user_password_reset_input {
+    email: String!
+}
+
+extend type Mutation {
+    logout_user: Boolean!
+    login_user(object: login_user_input!): login_user_response!
+    register_user(object: insert_user_input!): register_user_response!
+
+    reset_user_password(object: reset_user_password_input!): Boolean!
+    request_user_password_reset(object: request_user_password_reset_input!): Boolean!
+}
+
+extend type Query {
+    authenticated_user: user!
+}
+```
+
+If you're using the REST plugin, the following endpoints are added:
+
+- `POST auth/register` for registering new users
+- `POST auth/login` for creating new user sessions
+- `POST auth/logout` for logging out an authenticated user
+- `GET auth/me` for getting the currently authenticated user
+- `POST auth/passwords/email` for requesting a password reset
+- `POST auth/passwords/reset` for reset a user's password
+
+### User registration
+This provides a way for adding new users to your application. By default, only two fields are accepted: `email` and `password`. The password is automatically hashed before storing in the database. 
+It creates a session for the newly registered user by setting a cookie in the response, thus authenticating the user right away. Here's how you can register new users using axios:
+
+```js
+import axios from 'axios'
+
+axios.post('http://localhost:4500/auth/register', {
+    email: 'hey@tenseijs.com',
+    password: 'password'
+}).then(({ user }) => {
+    console.log(user)
+})
+```
+
+If you're using GraphQL, here's how you'll call the `register_user` mutation:
+
+```js
+import { ApolloClient, gql } from '@apollo/client'
+
+const client = new ApolloClient({
+    uri: 'http://localhost:4500/graphql',
+    credentials: "include", // !!! Super important to persist session
+})
+
+const REGISTER_USER = gql`
+    mutation register_user($email: String!, $password: String!) {
+        register_user(object: {
+            email: $email,
+            password: $password
+        }) {
+            user {
+                id
+                created_at
+            }
+        }
+    }
+`
+
+client.query({
+    query: REGISTER_USER,
+    variables: {
+        email: 'hey@tenseijs.com',
+        password: 'password'
+    }
+}).then(console.log)
+```
+
+### User login
+This provides a way to start a session for a user. Only two fields are accepted: `email` and `password`. This endpoint compares the password to make sure it matches, and starts a new session by setting a cookie in the response.  
+
+### Password resets
+When a user forget's their password, they can go through the password reset flow to identify and reset to a new password. Here's how this flow should go:
+
+- First, the user provides their email on your client-side, and you call the `POST auth/passwords/email` endpoint or `request_user_password_reset` mutation with this email. The auth plugin will find this user, and if the user exists, will send an email to the user with a unique password resets token embedded in a confirmation link. 
+
+```js
+const FORGOT_PASSWORD = gql`
+    mutation request_user_password_reset($email: String!) {
+        request_user_password_reset(object: {
+            email: $email
+        })
+    }
+`
+
+client.query({
+    query: FORGOT_PASSWORD,
+    variables: {
+        email: 'hey@tenseijs.com'
+    }
+}).then(console.log)
+```
+
+- Secondly, the user visits their email and clicks on the confirmation link. This link sends them back to your client-side application. This action should take them to a form requesting their new password.
+
+- Next, you need to extract the password reset token from the query string, and make a call to the `POST auth/passwords/reset` endpoint or `reset_user_password` mutation with the reset token and new password to reset the password.
+
+```js
+const RESET_PASSWORD = gql`
+    mutation reset_user_password($password: String!, $token: String!) {
+        reset_user_password(object: {
+            password: $password,
+            token: $token
+        })
+    }
+`
+
+client.query({
+    query: RESET_PASSWORD,
+    variables: {
+        token: 'gj6uyxxfg359kndc9dvwg286pk5whcnzm8h34xdq828cargxn94',
+        password: 'new-password'
+    }
+}).then(console.log)
+```
+
+### Get authenticated user
+After login, to get the currently authenticated user, you may call the `GET auth/me` endpoint or the `authenticated_user` query. Make sure to set `credentials: include` configuration on your HTTP client, so it automatically sends the cookie along to the server.
+
+The backend server validates this cookie, identifies the user, and responds with the user's details.
+
+Here's an example on how to get the authenticated user with axios:
+
+```js
+import Axios from 'axios'
+
+const instance = Axios.create({
+    withCredentials: true,
+    baseURL: 'http://localhost:4500'
+})
+
+instance.get('auth/me').then(console.log)
+```
+
+## JWT authentication
+Tensei implements the best practices for JWT and refresh tokens authentication as recommended by the [Internet Engineering Task Force](https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps-05#section-8).
+
+To enable JWT authentication, you may call the `.noCookies()` method on the auth plugin instance:
+
+```js
+const { auth } = require('@tensei/auth')
+const { tensei } = require('@tensei/core')
+
+tensei()
+    .plugins([
+        auth()
+            .noCookies()
+            .plugin()
+    ])
+```
+
+Now, the graphQL schema will change, adding access tokens and refresh tokens to the responses:
+
+```graphql
+type login_user_response {
+  access_token: String!
+  refresh_token: String!
+  expires_in: Int!
+  user: user!
+}
+
+type register_user_response {
+  access_token: String!
+  refresh_token: String!
+  expires_in: Int!
+  user: user!
+}
+```
+
+- The `access_token` is a valid JWT, and by default, this token expires in 20 minutes.
+- The `refresh_token` is a unique random token, which by default expires in 6 months.
+- The `expires_in` is the amount of time left until the access token expires.
+
+### User Registration
+User registration works exactly as with [session-based authentication](#user-registration), but this time the `access_token` and `refresh_token` will be included in the response body.
+
+### User login
+User login works exactly as with [session-based authentication](#user-login), but this time the `access_token` and `refresh_token` will be included in the response body.
+
+### Password resets
+Password resets work exactly as with [session-based authentication](#password-resets). 
+
+### Get authenticated user
+To get the authenticated user, you need to provide the access_token in the request header as a bearer token. Here's how you would get the authenticated user with axios:
+
+```js
+import axios from 'axios'
+
+const access_token = '...'
+
+const instance = Axios.create({
+    baseURL: 'http://localhost:4500'
+})
+
+instance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
+
+instance.get('auth/me').then(console.log)
+```
