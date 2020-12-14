@@ -119,6 +119,44 @@ If you're using the REST plugin, the following endpoints are added:
 - `POST auth/passwords/email` for requesting a password reset
 - `POST auth/passwords/reset` for reset a user's password
 
+### Csrf Protection
+If you are using session-based authentication which we highly recommend for web apps, your application might be vulnerable to CSRF attacks in older browsers. Tensei auth ships with Csrf protection by default when using session-based authentication.
+This means when your client application is making a `POST`, `PUT`, `PATCH` or `DELETE` request to the API, it would need to provide a valid CSRF token.
+
+To obtain a CSRF token, you may call the `GET /auth/csrf` endpoint. This endpoint returns a 204 no content, but will set the csrf token as a cookie in the response. Here's how you would do this with Axios:
+
+```js
+import axios from 'axios'
+
+axios
+  .get('/auth/csrf')
+  .then(console.log)
+```
+
+Modern HTTP clients such as Axios will automatically include this csrf cookie in headers when making further requests to the API.
+
+### Csrf with GraphQL
+If using GraphQL, you may query the `csrf_token` query to set the csrf token in the browser. Again this would return no data, but would include the csrf token in the response as cookies.
+
+```js
+import Cookies from 'js-cookie'
+import { GraphQLClient } from "graphql-request";
+
+const client = new GraphQLClient('http://localhost:4500/graphql', {
+    credentials: "include", // !!! Super important to persist session
+})
+
+const CSRF_TOKEN = gql`
+  csrf_token
+`
+
+// This request returns a cookie in the response.
+client.request(CSRF_TOKEN).then(() => {
+    // Set CSRF Token on headers
+    client.setHeader('x-csrf-token', Cookies.get('x-csrf-token'))
+})
+```
+
 ### User registration
 This provides a way for adding new users to your application. By default, only two fields are accepted: `email` and `password`. The password is automatically hashed before storing in the database. 
 It creates a session for the newly registered user by setting a cookie in the response, thus authenticating the user right away. Here's how you can register new users using axios:
@@ -126,23 +164,32 @@ It creates a session for the newly registered user by setting a cookie in the re
 ```js
 import axios from 'axios'
 
-axios.post('http://localhost:4500/auth/register', {
-    email: 'hey@tenseijs.com',
-    password: 'password'
-}).then(({ user }) => {
-    console.log(user)
-})
+async function register() {
+  // Set the CSRF COOKIE
+  await axios.get('auth/csrf')
+
+  // Axios automatically sends the csrf cookie as a header
+  const { user } = await axios.post('http://localhost:4500/auth/register', {
+      email: 'hey@tenseijs.com',
+      password: 'password'
+  })
+
+  // console.log(user)
+}
 ```
 
 If you're using GraphQL, here's how you'll call the `register_user` mutation:
 
 ```js
-import { ApolloClient, gql } from '@apollo/client'
+import Cookies from 'js-cookie'
+import { GraphQLClient } from "graphql-request";
 
-const client = new ApolloClient({
-    uri: 'http://localhost:4500/graphql',
+const client = new GraphQLClient('http://localhost:4500/graphql', {
     credentials: "include", // !!! Super important to persist session
 })
+
+// Set CSRF Token 
+client.setHeader('x-csrf-token', Cookies.get('x-csrf-token'))
 
 const REGISTER_USER = gql`
     mutation register_user($email: String!, $password: String!) {
@@ -158,12 +205,10 @@ const REGISTER_USER = gql`
     }
 `
 
-client.query({
-    query: REGISTER_USER,
-    variables: {
-        email: 'hey@tenseijs.com',
-        password: 'password'
-    }
+// Pass in the query and the variables
+client.request(REGISTER_USER, {
+    email: 'hey@tenseijs.com',
+    password: 'password'
 }).then(console.log)
 ```
 
@@ -206,12 +251,10 @@ const RESET_PASSWORD = gql`
     }
 `
 
-client.query({
-    query: RESET_PASSWORD,
-    variables: {
-        token: 'gj6uyxxfg359kndc9dvwg286pk5whcnzm8h34xdq828cargxn94',
-        password: 'new-password'
-    }
+// Pass in query and variables
+client.request(RESET_PASSWORD, {
+    token: 'gj6uyxxfg359kndc9dvwg286pk5whcnzm8h34xdq828cargxn94',
+    password: 'new-password'
 }).then(console.log)
 ```
 
@@ -273,13 +316,13 @@ type register_user_response {
 - The `expires_in` is the amount of time left until the access token expires.
 
 ### User Registration
-User registration works exactly as with [session-based authentication](#user-registration), but this time the `access_token` and `refresh_token` will be included in the response body.
+User registration works exactly as with [session-based authentication](#user-registration), but this time the `access_token` and `refresh_token` will be included in the response body. Also, no CSRF protection is required.
 
 ### User login
-User login works exactly as with [session-based authentication](#user-login), but this time the `access_token` and `refresh_token` will be included in the response body.
+User login works exactly as with [session-based authentication](#user-login), but this time the `access_token` and `refresh_token` will be included in the response body. Also, no CSRF protection is required.
 
 ### Password resets
-Password resets work exactly as with [session-based authentication](#password-resets). 
+Password resets work exactly as with [session-based authentication](#password-resets). Also, no CSRF protection is required.
 
 ### Get authenticated user
 To get the authenticated user, you need to provide the access_token in the request header as a bearer token. Here's how you would get the authenticated user with axios:

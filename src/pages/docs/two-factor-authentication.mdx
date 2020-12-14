@@ -39,6 +39,12 @@ extend type Mutation {
 }
 ```
 
+If you're using REST, it also generates the following endpoints:
+
+- `POST auth/two-factor/enable` to enable two factor authentication for a user account. This needs confirmation.
+- `POST auth/two-factor/confirm` to confirm the previous enable request. This requires a valid two-factor token from the user's authenticator mobile application.
+- `post auth/two-factor/disable` to disable two-factor authentication for a user account. This also requires a valid two-factor token.
+ 
 ## Two-factor flow
 - First, a user logins in to your application. By default, two-factor authentication is disabled.
 
@@ -50,7 +56,6 @@ extend type Mutation {
  
 - The mobile application should correctly display a two-factor token that expires every few seconds.
 
-- Your client-side application at this point should request the user provide a valid token to confirm two-factor authentication.
+- Your client-side application at this point should ask the user provide a valid token to confirm two-factor authentication.
 
 - As a final step, you need to call the `confirm_user_enable_two_factor_auth` mutation or `POST auth/two-factor/confirm` endpoint with the two-factor token. The auth plugin will enable two-factor authentication for this user.
-

@@ -52,10 +52,10 @@ instance.post('auth/emails/verification/confirm', {
 ## Resend verification email
 You may want to add a `Resend Verification email` button on your client-side application. This plugin provides a GraphQL mutation for resending the confirmation email. The user must be authenticated to make this request.
 
-Here's an example with apollo client:
+Here's an example with graphql-request:
 
 ```js
-import { ApolloClient, gql } from '@apollo/client'
+import { GraphqlClient } from 'graphql-request'
 
 const RESEND_VERIFICATION_EMAIL = gql`
     mutation resend_user_verification_email {
@@ -63,13 +63,9 @@ const RESEND_VERIFICATION_EMAIL = gql`
     }
 `
 
-const client = new ApolloClient({
-    uri: 'http://localhost:4500'
-})
+const client = new GraphqlClient('http://localhost:4500')
 
-client.query({
-    query: RESEND_VERIFICATION_EMAIL
-}).then(console.log)
+client.request(RESEND_VERIFICATION_EMAIL).then(console.log)
 ```
 
 You may also use the REST api endpoint `POST auth/emails/verification/resend` to resend a confirmation email to the user. No payload is needed for this endpoint.

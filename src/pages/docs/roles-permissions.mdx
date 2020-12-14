@@ -1,0 +1,55 @@
+---
+title: Roles and Permissions
+description: How to implement fully-featured role-based access control
+---
+
+Tensei auth ships with a fully-featured Role-based access control system. By default, this feature is disabled. To enable it, you may call the `.rolesAndPermissions()` method on the auth instance.
+
+```js
+const { auth } = require('@tensei/auth')
+const { tensei } = require('@tensei/core')
+
+tensei()
+    .plugins([
+        auth()
+            .rolesAndPermissions()
+    ])
+```
+
+## Default roles
+This will create two new resources in your application: `Role` and `Permission`. By default, two roles are created: `Public` and `Authenticated` roles. Every new registered user gets the authenticated role by default.
+
+For requests made without any authenticated user, a public user is assumed, with a `Public` role. You may assign permissions to the `Public` role to determine which actions are authorized without any authentication.
+
+## Default permissions
+By default, 5 permissions are generated for each resource. Let's take an example `Comment` resource. The following permissions will be generated:
+
+- `insert:comment`
+- `update:comment`
+- `fetch:comment`
+- `show:comment`
+- `delete:comment`
+
+By default, both roles have all the permissions in the application so you can get started quickly. You can customize the roles and permissions owned by each role from the CMS.
+
+## Custom permissions
+
+You may want to add more permissions to the ones created by default. To do so, you may use the `.permissions()` method on a resource instance.
+
+```js
+resource('Comment')
+    .permissions(['disable:comment', 'enable:comment', 'cleanup:comment'])
+```
+
+These custom permissions will be automatically inserted into the database when booting the application. 
+## Checking permissions
+When creating custom routes or queries, you may need to check if an authenticated user has the right permissions. The authenticated user will be attached to the GraphQL context and the Express request object.
+
+To authorize, you may check the permissions and roles in your authorize handler. 
+
+```js
+route('Moderate Comment')
+    .path('comments/moderate')
+    .authorize(({ user }) => user.permissions.includes(['enable:comment']))
+    .handle(...)
+```
