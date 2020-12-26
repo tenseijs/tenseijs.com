@@ -7,3 +7,183 @@ Tensei ships with the `@tensei/mail` package, a simple wrapper around [nodemaile
 
 By default, you may send emails using [AWS SES](https://aws.amazon.com/ses/), SMTP, [Sparkpost](https://sparkpost.com), [Mailgun](https://mailgun.com) and [Sendgrid](https://sendgrid.com).
 
+## Sending a simple email
+The default email driver is [ethereal](http://ethereal.email/). This is a great way to send and preview emails in development. To send an email, you may use the `mailer` from context. Here's an example that sends an email in a custom route:
+
+```js
+route('Send payment reminder')
+    .handle(({ mailer }) => {
+        mailer.send((message) => {
+            message.from('admin@tenseijs.com')
+                   .to('customer@app.io')
+                   .bcc('support@tenseijs.com')
+                   .html('<p>Your payment is due. Please renew before tomorrow. Thanks.</p>')
+        })
+    })
+```
+
+The `.send()` message receives a callback. The callback builds the message to be sent via nodemailer. Here is a list of all available methods on the message instance:
+
+```js
+/**
+ * Add receipent as `to`
+ */
+to(address: string, name?: string): this;
+/**
+ * Add `from` name and email
+ */
+from(address: string, name?: string): this;
+/**
+ * Add receipent as `cc`
+ */
+cc(address: string, name?: string): this;
+/**
+ * Add receipent as `bcc`
+ */
+bcc(address: string, name?: string): this;
+/**
+ * Define custom message id
+ */
+messageId(messageId: string): this;
+/**
+ * Define subject
+ */
+subject(message: string): this;
+/**
+ * Define replyTo email and name
+ */
+replyTo(address: string, name?: string): this;
+/**
+ * Define inReplyTo message id
+ */
+inReplyTo(messageId: string): this;
+/**
+ * Define multiple message id's as references
+ */
+references(messagesIds: string[]): this;
+/**
+ * Optionally define email envolpe
+ */
+envelope(envelope: EnvolpeNode): this;
+/**
+ * Define contents encoding
+ */
+encoding(encoding: string): this;
+/**
+ * Define email prority
+ */
+priority(priority: 'low' | 'normal' | 'high'): this;
+/**
+ * Compute email html from defined view
+ */
+htmlView(template: string, data?: any): this;
+/**
+ * Compute email text from defined view
+ */
+textView(template: string, data?: any): this;
+/**
+ * Compute apple watch html from defined view
+ */
+watchView(template: string, data?: any): this;
+/**
+ * Compute email html from raw text
+ */
+html(content: string): this;
+/**
+ * Compute email text from raw text
+ */
+text(content: string): this;
+/**
+ * Compute email watch html from raw text
+ */
+watch(content: string): this;
+/**
+ * Define one or attachments
+ */
+attach(filePath: string, options?: AttachmentOptionsNode): this;
+/**
+ * Define attachment from raw data
+ */
+attachData(content: Readable | Buffer, options?: AttachmentOptionsNode): this;
+/**
+ * Embed attachment inside content using `cid`
+ */
+embed(filePath: string, cid: string, options?: AttachmentOptionsNode): this;
+/**
+ * Embed attachment from raw data inside content using `cid`
+ */
+embedData(content: Readable | Buffer, cid: string, options?: AttachmentOptionsNode): this;
+/**
+ * Define custom headers for email
+ */
+header(key: string, value: string | string[]): this;
+/**
+ * Define custom prepared headers for email
+ */
+preparedHeader(key: string, value: string | string[]): this;
+```
+
+## Sending an email later
+Emails take a second or two to send. You may want to queue an email to be sent later. The mailer ships with an in-memory queue. To queue the email, you may use the `sendLater` method just like you would the `.send` method.
+
+```js
+route('Send payment reminder later')
+    .handle(({ mailer }) => {
+        mailer.sendLater((message) => {
+            message.from('admin@tenseijs.com')
+                   .to('customer@app.io')
+        })
+    })
+```
+
+## Sending mail using HTML views
+In medium to large applications, you may need to design and customize your emails with personalised user data. To do so, you may use html views. To send an email with a view, you may use the `.htmlView` method, and pass in the name of the view.
+
+```js
+route('Send payment reminder later')
+    .handle(({ mailer, user }) => {
+        mailer.sendLater((message) => {
+            message.from('admin@tenseijs.com')
+                   .to('customer@app.io')
+                   .htmlView('users.payment-reminder', { user })
+        })
+    })
+```
+
+The second argument to the `.htmlView` method is data that is passed to the view. 
+
+By default, tensei will expect this view to exist at `/emails/users/payment-reminder.edge` file. The view may look like this:
+
+```html
+<h2>Hello {{ user.firstname }}</h2>
+
+<p>I hope this meets you well.</p>
+
+<p>Please complete your total payment of {{ user.payment_dues }} by the end of the week.</p>
+
+<p>Thank you for using our application.</p>
+```
+
+The templating engine used for emails is called [Adonis Edge](https://edge.adonisjs.com).
+
+## Mail drivers
+
+### AWS SES
+You may use the `ses` plugin from the `@tensei/mail` package to add support for aws.
+
+```js
+const { ses } = require('@tensei/mail')
+const { tensei } = require('@tensei/core')
+
+tensei()
+    .plugins([
+        ses('transactional') // the name of this ses mail driver
+            .region('us-east-1')
+            .key(process.env.AWS_KEY)
+            .secret(process.env.AWS_SECRET)
+            .plugin(),
+    ])
+```
+
+You may also use other methods such as `.apiVersion()`, `.noSsl()` or `.configure()` to further configure the plugin.
+
