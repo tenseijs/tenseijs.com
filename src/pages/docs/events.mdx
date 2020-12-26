@@ -1,0 +1,63 @@
+---
+title: Events
+description: Understand events and event emitters in Tensei
+---
+
+Tensei ships with an event emitter based on the [emittery library](https://github.com/sindresorhus/emittery). The most popular use cases for events and listeners is performing actions after operations are completed in the application. For example, after a user is registered, a `user::registered` event is emitted.
+
+## Emitting events
+
+To emit a new event, you may use the emittery instance from the context (or request) instance. Let's say you have a route that deletes a user account:
+
+```js
+const { tensei, route } = require('@tensei/core')
+
+tensei()
+    .routes([
+        route('Delete customer account')
+            .handle(async ({ emitter, manager, params }, response) => {
+                await manager.remove('Customer', params.id)
+
+                emitter.emit('customer::deleted', params.id)
+
+                return response.noContent()
+            })
+    ])
+```
+
+Many plugins that add custom routes and graphql queries will emit events after actions are performed.
+
+## Listening to events
+To listen to events, you may use the `.events()` method on the tensei instance.
+
+```js
+const { tensei, route, event } = require('@tensei/core')
+
+tensei()
+    .events([
+        event('customer::deleted')
+            .listen(async ({ payload, ctx }) => {
+                ctx.mailer.send((message) => message.to(payload.email))
+            })
+            .listen(async ({ payload, ctx }) => {
+                ctx.manager.update('Customer', {...}, {...})
+            })
+    ])
+```
+
+You may register as many event listeners as possible to one event. All of these listeners will be called asynchronously when the event is triggered.
+
+## Listening to events in plugins
+If you are building a plugin, you may use the `extendEvents` method to add event listeners:
+
+```js
+const { plugin, event } = require('@tensei/common')
+
+plugin('Manager Users')
+    .boot(({ extendEvents }) => {
+        extendEvents([
+            event('user::registered')
+                .listen(async ({ payload }) => {...})
+        ])
+    })
+```

@@ -12,6 +12,8 @@ export const documentationNav = {
     pages['fields'],
     pages['relationships'],
     pages['validation'],
+    pages['events'],
+    pages['mails'],
   ],
   'GraphQL API': [
     pages['graphql-installation'],

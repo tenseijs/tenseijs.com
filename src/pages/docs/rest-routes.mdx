@@ -108,12 +108,12 @@ This endpoint may be used to fetch a single record of a resource. For example, `
 }
 ```
 
-This endpoint also supports [selecting fields](#selecting-fields), [populating relationships](#populating-relationships) and [deep population](#deep-population)
+This endpoint also supports [selecting fields](#selecting-fields), and [populating relationships](#populating-relationships).
 
 
 ### Fetch related resource
 
-This endpoint may be used to fetch relations of a single record. For example, `GET /api/comments/1/reactions` fetches all the reactions for a comment. This is a great way to fetch related records for large data sets, since you can [paginate](#pagination), [sort](#sorting), [select fields](#selecting-fields), [populate relationships](#populating-relationships) and [deep populate](#deep-population) the related resource.
+This endpoint may be used to fetch relations of a single record. For example, `GET /api/comments/1/reactions` fetches all the reactions for a comment. This is a great way to fetch related records for large data sets, since you can [paginate](#pagination), [sort](#sorting), [select fields](#selecting-fields), and [populate relationships](#populating-relationships) the related resource.
 
 Calling this endpoint returns the following data:
 
@@ -200,7 +200,7 @@ Content-Type: application/json
 }
 ```
 
-Notice that this endpoint supports [populating relationships](#populating-relationships) and [deep population](#deep-population). You may pass parameters to populate the newly created record.
+Notice that this endpoint supports [populating relationships](#populating-relationships). You may pass parameters to populate the newly created record.
 
 ### Update resource
 This endpoint may be used to update a resource by ID. For example, to update a comment of ID 1, we may use the `PATCH /api/comments/1` endpoint:
@@ -216,7 +216,7 @@ Content-Type: application/json
 }
 ```
 
-Notice that this endpoint supports [populating relationships](#populating-relationships) and [deep population](#deep-population). You may pass parameters to populate the record once it is updated.
+Notice that this endpoint supports [populating relationships](#populating-relationships). You may pass parameters to populate the record once it is updated.
 
 ### Delete resource
 This endpoint may be used to delete a resource by ID. For example, to delete a comment of ID 1, we may use the `DELETE /api/comments/1` endpoint:
@@ -227,7 +227,7 @@ Host: localhost:5000
 Content-Type: application/json
 ```
 
-This endpoint supports [populating relationships](#populating-relationships) and [deep population](#deep-population). You may pass parameters to populate the deleted record. You'll get a snapshot of the record before it is removed from the database.
+This endpoint supports [populating relationships](#populating-relationships). You may pass parameters to populate the deleted record. You'll get a snapshot of the record before it is removed from the database.
 
 ## Query Parameters
 
@@ -514,7 +514,7 @@ The data returned from the above query would be:
 }
 ```
 
-Populating using this method fetches all related data, and we recommend using this for small to medium sized data sets only. If you have a large data set, please visit the [deep populate section](/docs/rest-routes#deep-populate).
+Populating using this method fetches all related data, and we recommend using this for small to medium sized data sets only. If you have a large data set, please visit the [related resource documentation](#fetch-related-resource).
 
 ### Sorting
 
@@ -671,134 +671,4 @@ const query = qs.stringify({
 }, { encodeValuesOnly: true })
 
 axios.get(`http://localhost:4500/api/comments?${query}`)
-```
-
-### Deep population
-When populating data, you might need more control over the data populated. For example, you may want to find all comments, and populate only the first 3 reactions for each comment. For such operations, the REST API supports deep population, where you provide a detailed outline of population criteria.
-
-Here's an example, where we want to find all comments, populate only 3 reactions for each comment, filtering the reactions to only `downvote` type reactions:
-
-```js
-import qs from 'qs'
-
-const query = qs.stringify({
-    deep_populate: [
-        {
-            relation: 'reactions',
-            limit: 3,
-            offset: 0,
-            where: {
-                type: {
-                    _eq: 'downvote',
-                },
-            },
-            deep_populate: [{
-                relation: 'comment',
-                deep_populate: [{
-                    relation: 'reactions',
-                    limit: 1,
-                }]
-            }]
-        },
-    ],
-}, { encodeValuesOnly: true })
-
-axios.get(`http://localhost:4500/api/comments?${query}`)
-```
-
-The following data will be returned for the above query:
-
-```json
-{
-    "data": [
-        {
-            "id": 1,
-            "created_at": "2020-12-07T17:47:19.000Z",
-            "updated_at": "2020-12-07T17:47:19.000Z",
-            "title": "Quasi libero rerum optio architecto quaerat.",
-            "reactions": [
-                {
-                    "id": 1,
-                    "created_at": "2020-12-11T15:37:58.000Z",
-                    "updated_at": "2020-12-11T15:37:58.000Z",
-                    "type": 'downvote',
-                    "comment": {
-                        "id": 1,
-                        "created_at": "2020-12-07T17:47:19.000Z",
-                        "updated_at": "2020-12-07T17:47:19.000Z",
-                        "title": "Quasi libero rerum optio architecto quaerat.",
-                        "reactions": [
-                            {
-                                "id": 1,
-                                "created_at": "2020-12-11T15:37:58.000Z",
-                                "updated_at": "2020-12-11T15:37:58.000Z",
-                                "type": 'downvote'
-                            }
-                        ]
-                    }
-                },
-                {
-                    "id": 2,
-                    "created_at": "2020-12-11T15:38:17.000Z",
-                    "updated_at": "2020-12-11T15:38:17.000Z",
-                    "type": "downvote",
-                    "comment": {
-                        "id": 1,
-                        "created_at": "2020-12-07T17:47:19.000Z",
-                        "updated_at": "2020-12-07T17:47:19.000Z",
-                        "title": "Quasi libero rerum optio architecto quaerat.",
-                        "reactions": [
-                            {
-                                "id": 1,
-                                "created_at": "2020-12-11T15:37:58.000Z",
-                                "updated_at": "2020-12-11T15:37:58.000Z",
-                                "type": 'heart'
-                            }
-                        ]
-                    }
-                },
-                {
-                    "id": 4,
-                    "created_at": "2020-12-11T15:38:25.000Z",
-                    "updated_at": "2020-12-11T15:38:25.000Z",
-                    "type": "downvote",
-                    "comment": {
-                        "id": 1,
-                        "created_at": "2020-12-07T17:47:19.000Z",
-                        "updated_at": "2020-12-07T17:47:19.000Z",
-                        "title": "Quasi libero rerum optio architecto quaerat.",
-                        "reactions": [
-                            {
-                                "id": 1,
-                                "created_at": "2020-12-11T15:37:58.000Z",
-                                "updated_at": "2020-12-11T15:37:58.000Z",
-                                "type": null
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "created_at": "2020-12-07T17:47:19.000Z",
-            "updated_at": "2020-12-07T17:47:19.000Z",
-            "title": "Cum est dolor.",
-            "reactions": []
-        },
-        {
-            "id": 3,
-            "created_at": "2020-12-07T17:47:19.000Z",
-            "updated_at": "2020-12-07T17:47:19.000Z",
-            "title": "Eos veniam explicabo tempora ullam modi sint sit tenetur.",
-            "reactions": []
-        }
-    ],
-    "meta": {
-        "total": 1009,
-        "page": 1,
-        "per_page": 5,
-        "page_count": 202
-    }
-}
 ```
