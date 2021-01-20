@@ -69,7 +69,7 @@ export default function App({ Component, pageProps, router }) {
 
   return (
     <>
-      <Title suffix="Tailwind CSS">{meta.metaTitle || meta.title}</Title>
+      <Title suffix="Tensei">{meta.metaTitle || meta.title}</Title>
       <Head>
         <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
         <meta key="twitter:site" name="twitter:site" content="@tailwindcss" />
