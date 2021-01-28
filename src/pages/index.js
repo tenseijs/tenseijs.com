@@ -497,7 +497,7 @@ export default function Home() {
               style={{ backgroundColor: '#33C5FF' }}
             />
             <div className="lg:translate-40-vw" style={{ height: '80%' }}>
-              <CodeWindow className="bg-light-blue-500 pb-6 md:pb-0">
+              <CodeWindow className="bg-tensei-dark pb-6 md:pb-0">
                 <CodeWindow.Code tokens={tokens} />
               </CodeWindow>
             </div>

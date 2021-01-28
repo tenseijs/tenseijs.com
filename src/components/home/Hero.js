@@ -6,9 +6,7 @@ import styles from './Hero.module.css'
 import { useMedia } from '@/hooks/useMedia'
 import Link from 'next/link'
 
-const CHAR_DELAY = 75
-const GROUP_DELAY = 1000
-const TRANSITION = { duration: 0.5 }
+import Ellipse from '@/img/icons/home/Ellipse'
 
 const { tokens, code } = tokenize.javascript(
   `
@@ -206,9 +204,11 @@ export function Hero() {
         </div>
       }
       right={
-        <CodeWindow className={`${styles.codeWindow} bg-light-blue-500 pb-6 md:pb-0`}>
+        <>
+        <CodeWindow className={`${styles.codeWindow} bg-tensei-dark pb-6 md:pb-0`}>
           <CodeWindow.Code ref={inViewRef} tokens={tokens} />
         </CodeWindow>
+        </>
       }
     />
   )
@@ -230,6 +230,7 @@ function Layout({ left, right, pin = 'left' }) {
       </div>
       <div className="relative md:px-8 lg:px-0 self-center pt-0 lg:mt-0 mt-32 lg:pt-8 lg:w-1/2 w-full">
         <div className="mx-auto lg:max-w-2xl xl:max-w-none">
+        <div className="transform rotate-180 absolute right-1/3 translate-rotate-x-41-vw"><Ellipse /></div>
           <img
             src={require('@/img/laptop-hero.png').default}
             className="absolute -bottom-3 z-10 left-0 right-0 h-auto w-auto"

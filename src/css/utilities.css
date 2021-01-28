@@ -36,6 +36,11 @@
     .-translate-x-10-vw {
       transform: translateX(-10vw);
     }
+
+    .translate-rotate-x-41-vw {
+      transform-origin: left;
+      transform: translateX(41vw) rotate(180deg);
+    }
   }
 }
 
