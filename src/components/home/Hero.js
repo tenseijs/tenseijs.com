@@ -230,7 +230,7 @@ function Layout({ left, right, pin = 'left' }) {
       </div>
       <div className="relative md:px-8 lg:px-0 self-center pt-0 lg:mt-0 mt-32 lg:pt-8 lg:w-1/2 w-full">
         <div className="mx-auto lg:max-w-2xl xl:max-w-none">
-        <div className="transform rotate-180 absolute right-1/3 translate-rotate-x-41-vw"><Ellipse /></div>
+        <div className="transform rotate-180 absolute right-1/3 translate-rotate-x-44-vw w-86 lg:block hidden"><Ellipse /></div>
           <img
             src={require('@/img/laptop-hero.png').default}
             className="absolute -bottom-3 z-10 left-0 right-0 h-auto w-auto"

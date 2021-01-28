@@ -37,9 +37,9 @@
       transform: translateX(-10vw);
     }
 
-    .translate-rotate-x-41-vw {
+    .translate-rotate-x-44-vw {
       transform-origin: left;
-      transform: translateX(41vw) rotate(180deg);
+      transform: translate(44vw, -5rem) rotate(180deg);
     }
   }
 }

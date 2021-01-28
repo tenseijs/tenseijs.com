@@ -537,7 +537,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-tensei-purple rounded-xl flex lg:flex-row flex-col justify-between items-center lg:py-32 py-8 max-w-screen-lg xl:max-w-screen-2xl mx-auto lg:px-16 px-8 transform lg:translate-y-40">
+      <div className="bg-tensei-purple lg:rounded-xl flex lg:flex-row flex-col justify-between items-center lg:py-32 py-8 max-w-screen-lg xl:max-w-screen-2xl mx-auto lg:px-16 px-8 transform lg:translate-y-40">
         <h3 className="text-white text-2xl lg:text-4xl font-bold lg:w-2/5 w-full lg:text-left text-center">
           Rapidly develop APIs and web applications today.
         </h3>
