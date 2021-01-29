@@ -48,6 +48,7 @@
 .codeWindow {
   height: auto;
   max-height: none;
+  transform: translateX(35%);
 }
 
 @screen md {

@@ -49,15 +49,22 @@ module.exports = {
       },
       tensei: {
         purple: '#2346F8',
+        lightBlue: '#33C5FF',
         gray: '#EAEBEF',
         'gray-darker': '#61677C',
         dark: '#21185A',
         lighter: '#F6F8FF',
+        yellow: '#F0B103',
         light: '#EFF1FE',
         danger: '#D41B44',
       },
     },
+
     extend: {
+      lineHeight: {
+        '12': '3rem',
+        '14': '4rem',
+      },
       typography: (theme) => ({
         DEFAULT: {
           css: {
@@ -165,6 +172,7 @@ module.exports = {
       },
       width: {
         xl: '36rem',
+        '86': '22rem'
       },
       maxWidth: {
         '4.5xl': '60rem',

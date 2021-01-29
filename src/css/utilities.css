@@ -23,6 +23,27 @@
   @apply rounded !important;
 }
 
+@layer utilities {
+  @variants responsive {
+    .translate-40-vw {
+      transform: translate(13vw, -2rem);
+    }
+
+    .translate-x-20-vw {
+      transform: translateX(20vw);
+    }
+
+    .-translate-x-10-vw {
+      transform: translateX(-10vw);
+    }
+
+    .translate-rotate-x-44-vw {
+      transform-origin: left;
+      transform: translate(44vw, -5rem) rotate(180deg);
+    }
+  }
+}
+
 @supports (position: sticky) {
   @media (min-width: theme('screens.lg')) {
     .sticky\?lg\:h-screen {
