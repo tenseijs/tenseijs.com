@@ -41,7 +41,7 @@ A new route `POST auth/emails/verification/confirm` is also added. This endpoint
 import axios from 'axios'
 
 const instance = Axios.create({
-    baseURL: 'http://localhost:4500'
+    baseURL: 'http://localhost:8810'
 })
 
 instance.post('auth/emails/verification/confirm', {
@@ -63,7 +63,7 @@ const RESEND_VERIFICATION_EMAIL = gql`
     }
 `
 
-const client = new GraphqlClient('http://localhost:4500')
+const client = new GraphqlClient('http://localhost:8810')
 
 client.request(RESEND_VERIFICATION_EMAIL).then(console.log)
 ```

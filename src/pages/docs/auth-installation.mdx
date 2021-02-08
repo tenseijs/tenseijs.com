@@ -8,10 +8,10 @@ Tensei ships with a fully featured and cutomisable authentication system via the
 
 <List>
   <ListItemGood>
-    Session-based authentication
+    JWT authentication
   </ListItemGood>
   <ListItemGood>
-    JWT authentication with refresh tokens and refresh token rotation
+    Refresh tokens and refresh token rotation
   </ListItemGood>
   <ListItemGood>
     Social authentication
@@ -58,10 +58,8 @@ tensei()
 
 Make sure this plugin is registered before the `graphql()` or `rest()` plugins, that way, it can register new routes, queries and types before the API is booted.
 
-## Session-based authentication
-By default, once you register the plugin, you have secure, cookie-based authentication setup. This method of authentication is highly recommended for web applications running on the same domain. 
-
-Since third-party cookies are not fully supported, if your frontend application is running on a different domain from your backend, you may need to use JWT authentication.
+## JWT authentication
+Tensei implements the best practices for JWT and refresh tokens authentication as recommended by the [Internet Engineering Task Force](https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps-05#section-8).
 
 By default, the auth plugin adds the following types and queries to the GraphQL API:
 
@@ -78,11 +76,15 @@ type user {
     updated_at: String
 }
 
-type register_user_response {
+type login_user_response {
+  access_token: String!
+  expires_in: Int!
   user: user!
 }
 
-type login_user_response {
+type register_user_response {
+  access_token: String!
+  expires_in: Int!
   user: user!
 }
 
@@ -119,77 +121,28 @@ If you're using the REST plugin, the following endpoints are added:
 - `POST auth/passwords/email` for requesting a password reset
 - `POST auth/passwords/reset` for reset a user's password
 
-### Csrf Protection
-If you are using session-based authentication which we highly recommend for web apps, your application might be vulnerable to CSRF attacks in older browsers. Tensei auth ships with Csrf protection by default when using session-based authentication.
-This means when your client application is making a `POST`, `PUT`, `PATCH` or `DELETE` request to the API, it would need to provide a valid CSRF token.
-
-To obtain a CSRF token, you may call the `GET /auth/csrf` endpoint. This endpoint returns a 204 no content, but will set the csrf token as a cookie in the response. Here's how you would do this with Axios:
-
-```js
-import axios from 'axios'
-
-axios
-  .get('/auth/csrf')
-  .then(console.log)
-```
-
-Modern HTTP clients such as Axios will automatically include this csrf cookie in headers when making further requests to the API.
-
-### Csrf with GraphQL
-If using GraphQL, you may query the `csrf_token` query to set the csrf token in the browser. Again this would return no data, but would include the csrf token in the response as cookies.
-
-```js
-import Cookies from 'js-cookie'
-import { GraphQLClient } from "graphql-request";
-
-const client = new GraphQLClient('http://localhost:4500/graphql', {
-    credentials: "include", // !!! Super important to persist session
-})
-
-const CSRF_TOKEN = gql`
-  csrf_token
-`
-
-// This request returns a cookie in the response.
-client.request(CSRF_TOKEN).then(() => {
-    // Set CSRF Token on headers
-    client.setHeader('x-csrf-token', Cookies.get('x-csrf-token'))
-})
-```
-
 ### User registration
-This provides a way for adding new users to your application. By default, only two fields are accepted: `email` and `password`. The password is automatically hashed before storing in the database. 
-It creates a session for the newly registered user by setting a cookie in the response, thus authenticating the user right away. Here's how you can register new users using axios:
+This provides a way for adding new users to your application. By default, only two fields are accepted: `email` and `password`. The password is automatically hashed before storing in the database.
+
+It responds with an access token and the newly created customer:
 
 ```js
 import axios from 'axios'
 
 async function register() {
-  // Set the CSRF COOKIE
-  await axios.get('auth/csrf')
-
-  // Axios automatically sends the csrf cookie as a header
-  const { user } = await axios.post('http://localhost:4500/auth/register', {
+  const { data: { user, access_token } } = await axios.post('http://localhost:8810/auth/register', {
       email: 'hey@tenseijs.com',
       password: 'password'
   })
-
-  // console.log(user)
 }
 ```
 
 If you're using GraphQL, here's how you'll call the `register_user` mutation:
 
 ```js
-import Cookies from 'js-cookie'
 import { GraphQLClient } from "graphql-request";
 
-const client = new GraphQLClient('http://localhost:4500/graphql', {
-    credentials: "include", // !!! Super important to persist session
-})
-
-// Set CSRF Token 
-client.setHeader('x-csrf-token', Cookies.get('x-csrf-token'))
+const client = new GraphQLClient('http://localhost:8810/graphql')
 
 const REGISTER_USER = gql`
     mutation register_user($email: String!, $password: String!) {
@@ -213,7 +166,10 @@ client.request(REGISTER_USER, {
 ```
 
 ### User login
-This provides a way to start a session for a user. Only two fields are accepted: `email` and `password`. This endpoint compares the password to make sure it matches, and starts a new session by setting a cookie in the response.  
+This provides a way to get an access token for a user. Only two fields are accepted: `email` and `password`. This endpoint compares the password to make sure it matches, and generates a JWT for the user. 
+
+- The `access_token` is a valid JWT, and by default, this token expires in 20 minutes.
+- The `expires_in` is the amount of time left until the access token expires.
 
 ### Password resets
 When a user forget's their password, they can go through the password reset flow to identify and reset to a new password. Here's how this flow should go:
@@ -259,9 +215,9 @@ client.request(RESET_PASSWORD, {
 ```
 
 ### Get authenticated user
-After login, to get the currently authenticated user, you may call the `GET auth/me` endpoint or the `authenticated_user` query. Make sure to set `credentials: include` configuration on your HTTP client, so it automatically sends the cookie along to the server.
+After login, to get the currently authenticated user, you may call the `GET auth/me` endpoint or the `authenticated_user` query. Make sure to set the access token as the authorization header.
 
-The backend server validates this cookie, identifies the user, and responds with the user's details.
+The backend server validates this access token, identifies the user, and responds with the user's details.
 
 Here's an example on how to get the authenticated user with axios:
 
@@ -269,17 +225,23 @@ Here's an example on how to get the authenticated user with axios:
 import Axios from 'axios'
 
 const instance = Axios.create({
-    withCredentials: true,
-    baseURL: 'http://localhost:4500'
+    baseURL: 'http://localhost:8810/api',
+    headers: {
+      Authorization: 'Bearer <access_token>'
+    }
 })
 
 instance.get('auth/me').then(console.log)
 ```
 
-## JWT authentication
-Tensei implements the best practices for JWT and refresh tokens authentication as recommended by the [Internet Engineering Task Force](https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps-05#section-8).
+## Refresh tokens
+Refresh tokens provide a way to get new access tokens without the user having to login again. This is great for mobile applications, and in web applications where we want to keep the user logged in for long periods of time.
 
-To enable JWT authentication, you may call the `.noCookies()` method on the auth plugin instance:
+- The `access_token` is a valid JWT, and by default, this token expires in 20 minutes.
+- The `refresh_token` is a unique random token, which by default expires in 6 months.
+- The `expires_in` is the amount of time left until the access token expires.
+
+Refresh tokens are disabled by default. To enable refresh tokens, call the `.refreshTokens()` method.
 
 ```js
 const { auth } = require('@tensei/auth')
@@ -288,55 +250,22 @@ const { tensei } = require('@tensei/core')
 tensei()
     .plugins([
         auth()
-            .noCookies()
-            .plugin()
+          .refreshTokens()
+          .plugin()
     ])
 ```
 
-Now, the graphQL schema will change, adding access tokens and refresh tokens to the responses:
+Now, when you register or login a user, the refresh token would be added to the response.
+
+New queries are automatically generated to handle refreshing tokens and revoking tokens:
 
 ```graphql
-type login_user_response {
-  access_token: String!
-  refresh_token: String!
-  expires_in: Int!
-  user: user!
+input refresh_user_token_input {
+  refresh_token: String
 }
 
-type register_user_response {
-  access_token: String!
-  refresh_token: String!
-  expires_in: Int!
-  user: user!
+export type Mutation {
+  refresh_user_access_token(object: refresh_user_token_input): login_user_response!
+  revoke_user_refresh_token(object: refresh_user_token_input): login_user_response!
 }
-```
-
-- The `access_token` is a valid JWT, and by default, this token expires in 20 minutes.
-- The `refresh_token` is a unique random token, which by default expires in 6 months.
-- The `expires_in` is the amount of time left until the access token expires.
-
-### User Registration
-User registration works exactly as with [session-based authentication](#user-registration), but this time the `access_token` and `refresh_token` will be included in the response body. Also, no CSRF protection is required.
-
-### User login
-User login works exactly as with [session-based authentication](#user-login), but this time the `access_token` and `refresh_token` will be included in the response body. Also, no CSRF protection is required.
-
-### Password resets
-Password resets work exactly as with [session-based authentication](#password-resets). Also, no CSRF protection is required.
-
-### Get authenticated user
-To get the authenticated user, you need to provide the access_token in the request header as a bearer token. Here's how you would get the authenticated user with axios:
-
-```js
-import axios from 'axios'
-
-const access_token = '...'
-
-const instance = Axios.create({
-    baseURL: 'http://localhost:4500'
-})
-
-instance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
-
-instance.get('auth/me').then(console.log)
 ```

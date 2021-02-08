@@ -126,6 +126,7 @@ Tensei ships with a variety of field types. So, let's explore all of the availab
 - [Float](#float-field)
 - [Select](#select-field)
 - [Text](#text-field)
+- [Slug](#slug-field)
 - [Textarea](#textarea-field)
 
 ### Boolean Field
@@ -309,6 +310,19 @@ text('Title')
         placeholder: 'Enter your email'
     })
 ```
+
+## Slug Field
+The `Slug` field provides a read-only input control that automatically generates a url-friendly slug based on another field.
+
+```js
+slug('Slug')
+    .from('Title')
+    .type('date')
+```
+
+The above slug would be automatically generated `from()` the `Title` field. As you type the title on the CMS, you should see this change reflect.
+
+You may call the `.editable()` method if you do not want to slug to be read-only. You'll be able to update it to whatever you need.
 
 ### Textarea Field
 

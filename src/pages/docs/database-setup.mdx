@@ -20,11 +20,11 @@ npm i -s @mikro-orm/sqlite # for sqlite
 npm i -s @mikro-orm/mongodb # for mongodb
 ```
 
-Next, call the `.db()` method on the tensei instance to configure your database:
+Next, call the `.databaseConfig()` method on the tensei instance to configure your database:
 
 ```javascript
 tensei()
-    .db({
+    .databaseConfig({
         type: 'mysql', // or postgresql / sqlite / mongodb
         dbName: 'tensei',
         user: 'root',
@@ -32,7 +32,7 @@ tensei()
     })
 ```
 
-Make sure you call the `.db()` method before calling the `.start()` method. When you call `.start()`, Tensei establishes a database connection to your configured database. 
+Make sure you call the `.databaseConfig()` method before calling the `.start()` method. When you call `.start()`, Tensei establishes a database connection to your configured database. 
 
 You can learn more about your database options and configuration directly from the [Mikro ORM documentation](https://mikro-orm.io/docs/configuration/)
 
