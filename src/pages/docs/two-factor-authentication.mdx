@@ -3,7 +3,19 @@ title: Two factor auth
 description: Implementing two factor authentication with Tensei
 ---
 
-For added security, you may want to add two-factor authentication to your application. To enable this feature, you may call the `twoFactorAuth()` method on the auth plugin instance:
+For added security, you may want to add two-factor authentication to your application. Two-factor authentication is implemented using [speakeasy](https://www.npmjs.com/package/speakeasy).
+
+## Enable Two factor auth
+First, you need to install the `@tensei/two-factor-auth` package. This package installs speakeasy and provides the routes and functions for two-factor authentication.
+
+```bash
+yarn add @tensei/two-factor-auth
+
+# Or using npm
+npm install @tensei/two-factor-auth
+```
+
+To enable this feature, you may call the `twoFactorAuth()` method on the auth plugin instance:
 
 ```js
 const { auth } = require('@tensei/auth')

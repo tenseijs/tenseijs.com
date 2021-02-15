@@ -3,7 +3,7 @@ export function Community() {
     <ul className="grid sm:grid-cols-2 gap-6 xl:gap-8">
       <li>
         <a
-          href="https://github.com/tailwindlabs/tailwindcss/discussions"
+          href="https://github.com/tenseijs/tensei/discussions"
           className="flex items-start space-x-4"
         >
           <svg fill="currentColor" className="flex-none text-gray-900 w-12 h-12">
@@ -16,7 +16,7 @@ export function Community() {
           </svg>
           <div className="flex-auto">
             <h3 className="font-bold text-gray-900">GitHub Discussions</h3>
-            <p>Connect with members of the Tailwind CSS community.</p>
+            <p>Connect with members of the Tensei JS community.</p>
           </div>
         </a>
       </li>
@@ -37,12 +37,12 @@ export function Community() {
           </svg>
           <div className="flex-auto">
             <h3 className="font-bold text-gray-900">Discord</h3>
-            <p>Join our Discord group to chat with other Tailwind users.</p>
+            <p>Join our Discord group to chat with other Tensei users.</p>
           </div>
         </a>
       </li>
       <li>
-        <a href="https://twitter.com/tailwindcss" className="flex items-start space-x-4">
+        <a href="https://twitter.com/tenseijs" className="flex items-start space-x-4">
           <svg fill="currentColor" className="flex-none text-light-blue-400 w-12 h-12">
             <rect width="48" height="48" rx="12" />
             <path
@@ -53,12 +53,12 @@ export function Community() {
           </svg>
           <div className="flex-auto">
             <h3 className="font-bold text-gray-900">Twitter</h3>
-            <p>Follow the Tailwind Twitter account for news and updates.</p>
+            <p>Follow the Tensei Twitter account for news and updates.</p>
           </div>
         </a>
       </li>
       <li>
-        <a href="https://www.youtube.com/tailwindlabs" className="flex items-start space-x-4">
+        <a href="https://www.youtube.com/katifrantzv" className="flex items-start space-x-4">
           <svg fill="currentColor" className="flex-none text-red-500 w-12 h-12">
             <rect width="48" height="48" rx="12" />
             <path
@@ -69,7 +69,7 @@ export function Community() {
           </svg>
           <div className="flex-auto">
             <h3 className="font-bold text-gray-900">YouTube</h3>
-            <p>Watch screencasts and feature tutorials of Tailwind.</p>
+            <p>Watch screencasts and feature tutorials of Tensei.</p>
           </div>
         </a>
       </li>

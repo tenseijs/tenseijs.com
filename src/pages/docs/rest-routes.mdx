@@ -387,7 +387,7 @@ This will efficiently fetch all reactions related to the comments returned from 
 
 You may also populate nested relationships by adding a `.` separator in the populate relationships passed. For example, for each reaction, you may want to in turn populate the comment. To achieve this, you'll use the following URL:
 
-```shell
+```bash
 http://localhost:8810/api/comments?populate=reactions.comment
 ```
 
@@ -520,7 +520,7 @@ Populating using this method fetches all related data, and we recommend using th
 
 Sometimes you may wish to sort the database records by one or more fields in specific orders. To do this, you may use the `sort` query parameter, passing the field and direction as shown below:
 
-```shell
+```bash
 http://localhost:8810/api/comments?sort=title:asc,created_at:desc
 ```
 
@@ -573,7 +573,7 @@ The data returned should be sorted as shown below:
 
 Sometimes you want to filter database records by some query condition. You may use the `where` query parameter to provide a fully descriptive filtering criteria. This parameter should be a stringified object. Here's an example query filtering all comments with titles that match some text:
 
-```shell
+```bash
 http://localhost:8810/api/comments?where[title][_like]=%tenetur%
 ```
 
@@ -644,7 +644,7 @@ Here are the possible filters you can use:
 
 You may also pass in `_and` and `_or` for multiple filter criteria. Here's an example to filter by title, or by certain ids:
 
-```shell
+```bash
 http://localhost:8810/api/comments?where[_or][0][title][_like]=%25tenetur%25&where[_or][1][id][_in][0]=1&where[_or][1][id][_in][1]=2&where[_or][1][id][_in][2]=3&where[_or][1][id][_in][3]=4&where[_or][1][id][_in][4]=5&where[_or][1][id][_in][5]=6&where[_or][1][id][_in][6]=7&where[_or][1][id][_in][7]=8&where[_or][1][id][_in][8]=9&where[_or][1][id][_in][9]=10'
 ```
 
