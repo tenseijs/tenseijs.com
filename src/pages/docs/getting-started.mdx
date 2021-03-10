@@ -92,7 +92,7 @@ For a blog, we'll need some resources such as `Post`, `Comment`, `Category` and 
 
 ```javascript
 ...
-const { tensei, welcome, resource } = require('@tensei/core')
+const { tensei, resource } = require('@tensei/core')
 
 tensei()
   .root(__dirname)
@@ -108,7 +108,7 @@ tensei()
 A Post resource would need fields such as a title, description, and content. Each resource represents a database table. By default, the resource would have `ID`, `Created At` and `Updated At` fields. We need to add more fields to each registered resource. For example, the `Post` resource needs a `Title`, `Slug`, `Description`, `Content`, and `Published At`. Fields of different types are shipped with Tensei by default.
 
 ```js
-const { text, textarea, datetime, slug } = require('@tensei/core')
+const { text, textarea, dateTime, slug } = require('@tensei/core')
 
 resource('Post')
   .fields([
@@ -116,14 +116,14 @@ resource('Post')
       slug('Slug').from('Title'),
       textarea('Description'),
       textarea('Content'),
-      datetime('Published At'),
+      dateTime('Published At'),
   ])
 ```
 
 - The `text()` field creates a text field in the CMS and API.
 - The `slug()` field creates a slug field from the `Title`. As you type in the Title field, it'll generate the slug dynamically. That's how powerful fields can be.
 - The `textarea()` field creates a larger text field. On the CMS, it'll show up as a textarea.
-- The `datetime()` field creates a datetime field and will show up as a date-time picker on the CMS.
+- The `dateTime()` field creates a dateTime field and will show up as a date-time picker on the CMS.
 
 Now save your changes, and visit the CMS dashboard. On the left sidebar, the `Posts` nav item should show up. The index view shows all the posts in the database. Now we have none yet. Click the `Add Post` button. This shows the `form` view, which you may use to insert a new Post.
 
@@ -134,7 +134,7 @@ Create a new Post. After creating, you're redirected to the index view. You shou
 Let's add the `Category` resource to our blog.
 
 ```js
-const { text, textarea, datetime, slug } = require('@tensei/core')
+const { text, textarea } = require('@tensei/core')
 
 resource('Category')
   .fields([
@@ -150,7 +150,7 @@ In our blog, we need to link posts to a category. To do this, we must establish 
 We'll add the `hasMany` field to the category resource:
 
 ```js
-const { text, textarea, datetime, slug, hasMany } = require('@tensei/core')
+const { text, textarea, hasMany } = require('@tensei/core')
 
 resource('Category')
   .fields([
@@ -163,7 +163,7 @@ resource('Category')
 Finally we'll add the `belongsTo` field to the post resource:
 
 ```js
-const { text, textarea, datetime, slug, belongsTo } = require('@tensei/core')
+const { text, textarea, dateTime, slug, belongsTo } = require('@tensei/core')
 
 resource('Post')
   .fields([
@@ -171,7 +171,7 @@ resource('Post')
       slug('Slug').from('Title'),
       textarea('Description'),
       textarea('Content'),
-      datetime('Published At'),
+      dateTime('Published At'),
       belongsTo('Category')
   ])
 ```

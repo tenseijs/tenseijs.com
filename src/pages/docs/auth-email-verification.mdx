@@ -19,7 +19,7 @@ tensei()
 
 Enabling this feature will add two new fields to the user resource:
 - `Email Verification Token`, a text field to store a unique token sent to the user's email for confirmation
-- `Email Verified At`, a nullable datetime field that saves when a user's email was verified. You may check if this field is null to know if the user's account is verified or not.
+- `Email Verified At`, a nullable dateTime field that saves when a user's email was verified. You may check if this field is null to know if the user's account is verified or not.
 
 ## Verify emails
 Enabling this feature adds a new mutation to the GraphQL API and a new route to the Rest API.
