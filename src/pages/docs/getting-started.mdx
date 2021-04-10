@@ -108,7 +108,7 @@ tensei()
 A Post resource would need fields such as a title, description, and content. Each resource represents a database table. By default, the resource would have `ID`, `Created At` and `Updated At` fields. We need to add more fields to each registered resource. For example, the `Post` resource needs a `Title`, `Slug`, `Description`, `Content`, and `Published At`. Fields of different types are shipped with Tensei by default.
 
 ```js
-const { text, textarea, datetime, slug } = require('@tensei/core')
+const { text, textarea, dateTime, slug } = require('@tensei/core')
 
 resource('Post')
   .fields([
@@ -116,7 +116,7 @@ resource('Post')
       slug('Slug').from('Title'),
       textarea('Description'),
       textarea('Content'),
-      datetime('Published At'),
+      dateTime('Published At'),
   ])
 ```
 
