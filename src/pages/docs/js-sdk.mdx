@@ -1,0 +1,92 @@
+---
+title: Javascript SDK
+description: A simple SDK for consuming your Tensei REST API
+---
+
+## Getting started
+
+The Javascript SDK is a simple, fully typed library that makes it incredibly easy and enjoyable to consume your Tensei REST API. There are two steps involved in the installation process.
+
+First, in your client-side application, run the following command:
+
+```bash
+yarn add @tensei/sdk
+```
+
+Next, you need to generate the types for your own custom Tensei API. In your client application, run the command `yarn tensei-sdk generate` (or, for short `yarn tensei-sdk g`). This would read your Tensei API, and generate types for the sdk. You would have to run this command everytime you make changes to your API to get the latest changes.
+
+```bash
+yarn tensei-sdk generate 
+
+# or 
+
+yarn tensei-sdk g
+```
+
+By default, the sdk would fetch the types from `http://localhost:8801`, but if your API is running on a different url, you may provide the url as the second parameter:
+
+```bash
+yarn tensei-sdk g http://localhost:5006
+```
+
+## Making API requests
+
+To make an API call, first you need to create an instance:
+
+```js
+import { sdk } from '@tensei/sdk'
+
+const tensei = sdk()
+```
+
+Every resource available on your Tensei application would be exposed by a corresponding function on the sdk instance. For example, if you had a `Post` and `Category` resource on your API, `tensei.post()` and `tensei.categories()` would be available on the sdk.
+
+
+### Available resource methods:
+
+The following methods are available for each resource:
+
+```js
+tensei.posts().findMany()
+tensei.posts().find()
+tensei.posts().insert()
+tensei.posts().insertMany()
+tensei.posts().update()
+tensei.posts().updateMany()
+tensei.posts().delete()
+tensei.posts().deleteMany()
+```
+
+### Authentication
+
+If you have authentication setup on your API, you may access authentication endpoints using `tensei.auth()`:
+
+```js
+tensei.auth().login()
+tensei.auth().logout()
+tensei.auth().register()
+
+// Password resets
+tensei.auth().forgotPassword()
+tensei.auth().resetPassword()
+
+// Fetch user details/tokens
+tensei.auth().me()
+tensei.auth().refreshToken()
+tensei.auth().silentLogin()
+
+// Email verification
+tensei.auth().confirmEmail()
+tensei.auth().resendVerificationEmail()
+
+// Two-factor authentication
+tensei.auth().enableTwoFactor()
+tensei.auth().confirmEnableTwoFactor()
+tensei.auth().disableTwoFactor()
+
+// Social authentication
+tensei.auth().socialRedirectUrl()
+tensei.auth().socialConfirm()
+```
+
+Thanks to typescript, you may `CMD + Click` on a method to see all its arguments and types uniquely generated for your Tensei API.
