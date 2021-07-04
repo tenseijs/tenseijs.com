@@ -1,0 +1,109 @@
+---
+title: React Auth
+description: Easy authentication implementation with React SPA
+---
+
+## Getting started
+
+The React Auth package is a simple package to help you implement authentication in a React Single Page Application. It uses the context API behind the scenes to make authentication available.
+
+First, in your client-side application, run the following command:
+
+```bash
+yarn add @tensei/react-auth
+```
+
+Next, you need to generate the types for your own custom Tensei API. In your client application, run the command `yarn tensei-sdk generate` (or, for short `yarn tensei-sdk g`). This would read your Tensei API, and generate types for the sdk. You would have to run this command everytime you make changes to your API to get the latest changes.
+
+```bash
+yarn tensei-sdk generate 
+
+# or 
+
+yarn tensei-sdk g
+```
+
+By default, the sdk would fetch the types from `http://localhost:8810`, but if your API is running on a different url, you may provide the url as the second parameter:
+
+```bash
+yarn tensei-sdk g http://localhost:5006
+```
+
+## Setting up the auth provider
+
+Next, import the provider and wrap your whole application with it:
+
+```js
+import ReactDOM from 'react-dom'
+import { TenseiAuthProvider } from '@tensei/sdk'
+
+import App from './App'
+
+ReactDOM.render(
+    <TenseiAuthProvider>
+        <App />
+    </TenseiAuthProvider>
+)
+```
+
+The provider will take care of checking if the user is already authenticated, handling social authentication callback, setting and unsetting the authenticated user, silently refreshing the access token, and so much more.
+
+### Sample authentication example
+
+The following is an example on how to setup authentication. 
+
+- The `useAuth` hook gives you access to the authenticated user and access token.
+- The `useTensei` hook gives you the sdk instance you can use to interact with your Tensei api.
+
+```js
+import ReactDOM from 'react-dom'
+import { TenseiAuthProvider, useAuth, useTensei } from '@tensei/react-auth'
+
+const App = () => {
+    // Get the sdk instance
+    const tensei = useTensei()
+    // Get the user. If the user is currently being fetched, isLoading will be true.
+    const { isLoading, user } = useAuth()
+
+    // A function to login a user. This will handle setting the user and access token.
+    // You may need to redirect the user after successful authentication.
+    const login = () => {
+        tensei.auth().login({
+            object: {
+                email: 'hey@tenseijs.com',
+                password: 'password'
+            }
+        })
+    }
+
+    // A function to logout the currently authenticated user. user from useAuth() will become undefined. 
+    const logout = () => tensei.auth().logout()
+
+    // Handle the loading state in your component. You may want to display a spinner here.
+    if (isLoading) {
+        return <h2>Loading authenticated user...</h2>
+    }
+
+    // Check if the user is authenticated by checking `user` variable. 
+    if (user) {
+        return (
+            <>
+                Hello, <b>{user.email}</b>
+                <button onClick={logout}>Logout</button>
+            </>
+        )
+    }
+
+    // Render a login button or page if user is not authenticated.
+    return (
+        <button onClick={login}>Login</button>
+    )
+}
+
+ReactDOM.render(
+    <TenseiAuthProvider>
+        <App />
+    </TenseiAuthProvider>,
+    document.querySelector('#app')
+)
+```
