@@ -48,7 +48,9 @@ ReactDOM.render(
 
 The provider will take care of checking if the user is already authenticated, handling social authentication callback, setting and unsetting the authenticated user, silently refreshing the access token, and so much more.
 
-### Sample authentication example
+## Examples
+
+### Sample authentication
 
 The following is an example on how to setup authentication. 
 
@@ -107,3 +109,102 @@ ReactDOM.render(
     document.querySelector('#app')
 )
 ```
+
+### With React Router
+
+Here's an example using React Router:
+
+```js
+import ReactDOM from 'react-dom'
+import { Router, Route, Link } from 'react-router-dom'
+import { TenseiAuthProvider, useAuth, useTensei, MustBeAuthenticated, MustBeNotAuthenticated } from '@tensei/react-auth'
+
+const LoginPage = () => {
+    const tensei = useTensei()
+
+    const onSubmit = (event: any) => {
+        event.preventDefault()
+
+        const [email, password] = event.target.elements
+
+        tensei.auth().login({
+            object: {
+                email: email.value,
+                password: password.value
+            }
+        })
+    }
+
+    return (
+        <div>
+            <form onSubmit={onSubmit}>
+                <input type="text" name="email" placeholder="email" />
+                <input type="password" name="password" placeholder="password" />
+
+                <br />
+                <br />
+                <button>login to your account</button>
+            </form> 
+        </div>
+    )
+}   
+
+const DashboardPage = () => {}
+
+//
+const WelcomePage = () => {
+    return (
+        <div>
+            <h1>Welcome to our beautiful app</h1>
+            <br />
+            <Link to='/login'>Login to your account</Link>
+        </div>
+    )
+}
+
+ReactDOM.render(
+    <TenseiAuthProvider>
+        <Router>
+            <Route path='/' exact component={WelcomePage} />
+            {/* This route can only be accessed by users who are not authenticated */}
+            <Route path='/login' exact component={MustBeNotAuthenticated(LoginPage)} />
+            {/* This route can only be accessed by authenticated users */}
+            <Route path='/dashboard' exact component={MustBeAuthenticated(DashboardPage)} />
+        </Router>
+    </TenseiAuthProvider>,
+    document.querySelector('#app')
+)
+```
+
+### With custom redirect callback
+By default, if a user is not authenticated, they're redirected using `window.location.href = '/login'`. This may not provide the best user experience since it'll cause a full page refresh. If you're using React Router or another routing library, you may want to redirect using client-side routing.
+To do this, you may pass the `onRedirectCallback` to the auth provider. Here's an example for React Router:
+
+```js
+import ReactDOM from 'react-dom'
+
+// First we'll create a custom history
+import { createBrowserHistory } from 'history'
+
+import { Router, Route, Link } from 'react-router-dom'
+import { TenseiAuthProvider } from '@tensei/react-auth'
+
+// Create custom history object
+export const history = createBrowserHistory()
+
+
+// Create a custom redirect callback. 
+const onRedirectCallback = (path: string) => history.replace(path)
+
+ReactDOM.render(
+    <TenseiAuthProvider onRedirectCallback={onRedirectCallback}>
+        {/* Pass custom history to router */}
+        <Router history={history}>
+            {/* register your routes */}
+        </Router>
+    </TenseiAuthProvider>,
+    document.querySelector('#app')
+)
+```
+
+With the above example, all redirects will be done using `history.replace`, and there won't be any page refreshes.
